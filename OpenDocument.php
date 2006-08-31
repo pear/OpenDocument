@@ -270,41 +270,41 @@ class OpenDocument
         $this->path = $filename;
 
         //get mimetype
-        if (!$this->mimetype = ZipWrapper::read($filename, self::FILE_MIMETYPE)) {
+        if (!$this->mimetype = OpenDocument_ZipWrapper::read($filename, self::FILE_MIMETYPE)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_MIMETYPE_ERR);
         }
 
         //get content
         $this->contentDOM = new DOMDocument();
-        if (!$this->contentDOM->loadXML(ZipWrapper::read($filename, self::FILE_CONTENT))) {
+        if (!$this->contentDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_CONTENT))) {
             throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_CONTENT_ERR);
         }
         $this->contentXPath = new DOMXPath($this->contentDOM);
 
         //get meta data
         $this->metaDOM = new DOMDocument();
-        if (!$this->metaDOM->loadXML(ZipWrapper::read($filename, self::FILE_META))) {
+        if (!$this->metaDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_META))) {
             throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_META_ERR);
         }
         $this->metaXPath = new DOMXPath($this->metaDOM);
 
         //get settings
         $this->settingsDOM = new DOMDocument();
-        if (!$this->settingsDOM->loadXML(ZipWrapper::read($filename, self::FILE_SETTINGS))) {
+        if (!$this->settingsDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_SETTINGS))) {
             throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_SETTINGS_ERR);
         }
         $this->settingsXPath = new DOMXPath($this->settingsDOM);
 
         //get styles
         $this->stylesDOM = new DOMDocument();
-        if (!$this->stylesDOM->loadXML(ZipWrapper::read($filename, self::FILE_STYLES))) {
+        if (!$this->stylesDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_STYLES))) {
             throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_STYLES_ERR);
         }
         $this->stylesXPath = new DOMXPath($this->stylesDOM);
 
         //get manifest information
         $this->manifestDOM = new DOMDocument();
-        if (!$this->manifestDOM->loadXML(ZipWrapper::read($filename, self::FILE_MANIFEST))) {
+        if (!$this->manifestDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_MANIFEST))) {
             throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_MANIFEST_ERR);
         }
         $this->manifestXPath = new DOMXPath($this->manifestDOM);
@@ -768,37 +768,37 @@ class OpenDocument
             $this->path = $filename;
         }
         //write mimetype
-        if (!ZipWrapper::write($this->path, self::FILE_MIMETYPE, $this->mimetype)) {
+        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_MIMETYPE, $this->mimetype)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_MIMETYPE_ERR);
         }
 
         //write content
         $xml = str_replace("'", '&apos;', $this->contentDOM->saveXML());
-        if (!ZipWrapper::write($this->path, self::FILE_CONTENT, $xml)) {
+        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_CONTENT, $xml)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_CONTENT_ERR);
         }
 
         //write meta
         $xml = str_replace("'", '&apos;', $this->metaDOM->saveXML());
-        if (!ZipWrapper::write($this->path, self::FILE_META, $xml)) {
+        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_META, $xml)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_META_ERR);
         }
 
         //write settings
         $xml = str_replace("'", '&apos;', $this->settingsDOM->saveXML());
-        if (!ZipWrapper::write($this->path, self::FILE_SETTINGS, $xml)) {
+        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_SETTINGS, $xml)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_SETTINGS_ERR);
         }
 
         //write styles
         $xml = str_replace("'", '&apos;', $this->stylesDOM->saveXML());
-        if (!ZipWrapper::write($this->path, self::FILE_STYLES, $xml)) {
+        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_STYLES, $xml)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_STYLES_ERR);
         }
 
         //write manifest
         $xml = str_replace("'", '&apos;', $this->manifestDOM->saveXML());
-        if (!ZipWrapper::write($this->path, self::FILE_MANIFEST, $xml)) {
+        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_MANIFEST, $xml)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_MANIFEST_ERR);
         }
     }
