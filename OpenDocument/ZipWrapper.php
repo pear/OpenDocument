@@ -1,5 +1,5 @@
 <?php
-class OpendDocument_ZipWrapper
+class OpenDocument_ZipWrapper
 {
     public static function read($archive, $filename)
     {
