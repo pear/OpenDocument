@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.4.9" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+ <name>OpenDocument</name>
+ <channel>pear.php.net</channel>
+ <summary>Package to read, create or modify office documents in open document format.</summary>
+ <description>OpenDocument is a package to read, create or modify office documents in open document format.
+OpenDocument format is a replacement for proprietary office formats such as .doc or .xls. This package is a very useful tool for php developers and another point to switch from proprietary office formats to OpenDocument one, that means switching to open source software and standards.
+OpenDocument was developed as a project of Google Summer of Code 2006 Program.
+Package provides object oriented style for working with open documents, a little similar to DOM as for XML.</description>
+ <lead>
+  <name>Alexander Pak</name>
+  <user>irokez</user>
+  <email>irokez@gmail.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2007-07-09</date>
+ <time>16:44:41</time>
+ <version>
+  <release>0.1.2</release>
+  <api>0.1.2</api>
+ </version>
+ <stability>
+  <release>alpha</release>
+  <api>alpha</api>
+ </stability>
+ <license uri="http://www.php.net/license">PHP License</license>
+ <notes>Bug fix #11567: Class &apos;Zip&apos; not found</notes>
+ <contents>
+  <dir name="/">
+   <file baseinstalldir="" md5sum="beacdd3fef0710c267023dd2f0faee7f" name="examples/create.php" role="doc" />
+   <file baseinstalldir="" md5sum="2301ae86ec9216f5ff451234f71cac1a" name="examples/html.php" role="doc" />
+   <file baseinstalldir="" md5sum="4d80696b4e70b6e62711aa4f6e11a49f" name="examples/read.php" role="doc" />
+   <file baseinstalldir="" md5sum="60cc863e2909388db482638393a40f9e" name="examples/test.odt" role="doc" />
+   <file baseinstalldir="" md5sum="4366ab9aa651bbfe089ab2d622f6c2e3" name="OpenDocument/templates/default.odt" role="php" />
+   <file baseinstalldir="" md5sum="e4634db935723c98fee563445cb645b4" name="OpenDocument/Bookmark.php" role="php" />
+   <file baseinstalldir="" md5sum="a967be5610abb5c1cdb7533fd4a63a55" name="OpenDocument/Element.php" role="php" />
+   <file baseinstalldir="" md5sum="8b677b9c78481ffd56862839cb6584a3" name="OpenDocument/ElementStyle.php" role="php" />
+   <file baseinstalldir="" md5sum="4ae0778ed0deb341da871b4c07e298d8" name="OpenDocument/Exception.php" role="php" />
+   <file baseinstalldir="" md5sum="4b80144b60c3418038e87cd0e050804c" name="OpenDocument/Heading.php" role="php" />
+   <file baseinstalldir="" md5sum="58e9f50c185b06b89d8d64e4d7297d66" name="OpenDocument/Hyperlink.php" role="php" />
+   <file baseinstalldir="" md5sum="27b32d71e66fb7adf1bdfd0384eba0d8" name="OpenDocument/Paragraph.php" role="php" />
+   <file baseinstalldir="" md5sum="b50f299be7fe2812c9f1463b6f1037af" name="OpenDocument/Span.php" role="php" />
+   <file baseinstalldir="" md5sum="fe640fe66e001c4ca45eed8583566b96" name="OpenDocument/Style.php" role="php" />
+   <file baseinstalldir="" md5sum="5001ad4a976a7555171a6df04f7ffe49" name="OpenDocument/StyledElement.php" role="php" />
+   <file baseinstalldir="" md5sum="91b9bfec7f36e144bbf271c5117948b3" name="OpenDocument/TextElement.php" role="php" />
+   <file baseinstalldir="" md5sum="91000bbf99e234ba44cb4218e582b3fb" name="OpenDocument/ZipWrapper.php" role="php" />
+   <file baseinstalldir="" md5sum="3779f04ed5d3fbe79533893f4e4c26fd" name="OpenDocument.php" role="php" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.0.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <version>
+    <release>0.1.2</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2007-07-09</date>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>Bug fix #11567: Class &apos;Zip&apos; not found</notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.1</release>
+    <api>0.1.1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2007-07-08</date>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>Bug fix #11557: case mismatch and extra space</notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2007-03-26</date>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>First release</notes>
+  </release>
+ </changelog>
+</package>
