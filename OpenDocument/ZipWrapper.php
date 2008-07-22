@@ -1,5 +1,5 @@
 <?php
-class ZipWrapper
+class OpendDocument_ZipWrapper
 {
     public static function read($archive, $filename)
     {
@@ -13,7 +13,7 @@ class ZipWrapper
         }
         return false;
     }
-    
+
     public static function write($archive, $filename, $content)
     {
         $zip = new ZipArchive;
