@@ -57,7 +57,6 @@ class OpenDocument
      * Path to opened OpenDocument file
      *
      * @var string
-     * @access private
      */
     private $path;
     
@@ -65,7 +64,6 @@ class OpenDocument
      * DOMNode of current node
      *
      * @var DOMNode
-     * @access provate
      */
     private $cursor;
     
@@ -73,7 +71,6 @@ class OpenDocument
      * DOMNode contains style information
      *
      * @var DOMNode
-     * @access private
      */
     private $styles;
     
@@ -81,7 +78,6 @@ class OpenDocument
      * DOMNode contains fonts declarations
      *
      * @var DOMNode
-     * @access private
      */
     private $fonts;
     
@@ -89,7 +85,6 @@ class OpenDocument
      * Mime type information
      *
      * @var string
-     * @access private
      */
     private $mimetype;
     
@@ -97,7 +92,6 @@ class OpenDocument
      * Flag indicates whether it is a new file
      *
      * @var bool
-     * @access private
      */
     private $create = false;
 
@@ -105,7 +99,6 @@ class OpenDocument
      * DOMDocument for content file
      *
      * @var DOMDocument
-     * @access private
      */
     private $contentDOM;
 
@@ -113,7 +106,6 @@ class OpenDocument
      * DOMXPath object for content file
      *
      * @var DOMXPath
-     * @access private
      */
     private $contentXPath;
 
@@ -121,7 +113,6 @@ class OpenDocument
      * DOMDocument for meta file
      *
      * @var DOMDocument
-     * @access private
      */
     private $metaDOM;
 
@@ -129,7 +120,6 @@ class OpenDocument
      * DOMXPath for meta file
      *
      * @var DOMXPath
-     * @access private
      */
     private $metaXPath;
 
@@ -137,7 +127,6 @@ class OpenDocument
      * DOMDocument for settings file
      *
      * @var DOMDocument
-     * @access private
      */
     private $settingsDOM;
 
@@ -145,7 +134,6 @@ class OpenDocument
      * DOMXPath for setting file
      *
      * @var DOMXPath
-     * @access private
      */
     private $settingsXPath;
 
@@ -153,7 +141,6 @@ class OpenDocument
      * DOMDocument for styles file
      *
      * @var DOMDocument
-     * @access private
      */
     private $stylesDOM;
 
@@ -161,7 +148,6 @@ class OpenDocument
      * DOMXPath for styles file
      *
      * @var DOMXPath
-     * @access private
      */
     private $stylesXPath;
 
@@ -169,7 +155,6 @@ class OpenDocument
      * DOMDocument for styles file
      *
      * @var DOMDocument
-     * @access private
      */
     private $manifestDOM;
 
@@ -177,7 +162,6 @@ class OpenDocument
      * DOMXPath for manifest file
      *
      * @var DOMXPath
-     * @access private
      */
     private $manifestXPath;
             
@@ -185,7 +169,6 @@ class OpenDocument
      * Collection of children objects
      *
      * @var ArrayIterator
-     * @access read-only
      */
     private $children;
 
@@ -255,6 +238,7 @@ class OpenDocument
      * @param string $filename optional
      *               specify file name if you want to open existing file
      *               to create new document pass nothing or empty string
+     *
      * @throws OpenDocument_Exception
      */
     public function __construct($filename = '')
