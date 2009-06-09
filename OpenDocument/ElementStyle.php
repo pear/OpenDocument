@@ -29,7 +29,7 @@
 * @since      File available since Release 0.1.0
 */
 
-require_once 'Style.php';
+require_once 'OpenDocument/Style.php';
 
 /**
 * OpenDocument_ElementStyle class

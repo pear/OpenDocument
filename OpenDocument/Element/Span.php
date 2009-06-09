@@ -27,7 +27,7 @@
 * @since      File available since Release 0.1.0
 */
 
-require_once 'StyledElement.php';
+require_once 'OpenDocument/StyledElement.php';
 
 /**
 * OpenDocument_Span element

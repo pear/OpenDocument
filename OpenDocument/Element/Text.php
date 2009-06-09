@@ -29,7 +29,7 @@
 * @since      File available since Release 0.1.0
 */
 
-require_once 'Element.php';
+require_once 'OpenDocument/Element.php';
 
 /**
 * OpenDocument_TextElement class
