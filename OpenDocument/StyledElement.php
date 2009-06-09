@@ -50,7 +50,7 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Style information
      *
-     * @var array
+     * @var OpenDocument_ElementStyle
      */
     protected $style;
 
