@@ -93,7 +93,7 @@ abstract class OpenDocument_Style
      * @param string $name
      * @param mixed $value
      */
-    protected function __set($name, $value)
+    public function __set($name, $value)
     {
         if (isset($this->map[$name])) {
             $this->element->applyStyle($this->map[$name], $value);
@@ -108,7 +108,7 @@ abstract class OpenDocument_Style
      * @param string $name
      * @return mixed
      */
-    protected function __get($name)
+    public function __get($name)
     {
         if (isset($this->$name)) {
             return $this->$name;

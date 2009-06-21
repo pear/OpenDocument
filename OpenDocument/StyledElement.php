@@ -55,6 +55,14 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     protected $style;
 
     /**
+     * Style family used,
+     * e.g. "text" for spans or "paragraph" for paras.
+     *
+     * @var string
+     */
+    const styleFamily = 'paragraph';
+
+    /**
      * Style name suffix max value
      *
      * @var integer
@@ -92,7 +100,7 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
      * @param string $name
      * @return mixed
      */
-    protected function __get($name)
+    public function __get($name)
     {
         if ($name == 'style') {
             return $this->style;

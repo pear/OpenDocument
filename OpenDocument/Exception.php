@@ -117,4 +117,4 @@ class OpenDocument_Exception extends PEAR_Exception
      */
     const ELEM_OR_DOC_EXPECTED = 14;
 }
-?> 
+?>

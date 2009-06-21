@@ -62,6 +62,13 @@ class OpenDocument_Paragraph extends OpenDocument_StyledElement
      *
      */
     const styleNamePrefix = 'P';
+
+    /**
+     * Style family to use
+     *
+     * @var string
+     */
+    const styleFamily = 'paragraph';
     
 
     /**

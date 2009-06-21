@@ -63,6 +63,13 @@ class OpenDocument_Span extends OpenDocument_StyledElement
     const styleNamePrefix = 'T';
 
     /**
+     * Style family to use
+     *
+     * @var string
+     */
+    const styleFamily = 'text';
+
+    /**
      * Create element instance
      *
      * @param mixed $object

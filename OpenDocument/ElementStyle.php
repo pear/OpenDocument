@@ -101,7 +101,7 @@ class OpenDocument_ElementStyle extends OpenDocument_Style
      * @param string $name
      * @param mixed $value
      */
-    protected function __set($name, $value)
+    public function __set($name, $value)
     {
         if ($name == 'fontName') {
             $this->element->getDocument()->addFont($value);

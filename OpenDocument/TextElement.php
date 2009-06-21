@@ -96,7 +96,7 @@ class OpenDocument_TextElement extends OpenDocument_Element
      * @param string $name
      * @param mixed $value
      */
-    protected function __set($name, $value)
+    public function __set($name, $value)
     {
         switch ($name) {
         case 'text':
@@ -114,7 +114,7 @@ class OpenDocument_TextElement extends OpenDocument_Element
      * @param string $name
      * @return mixed
      */
-    protected function __get($name)
+    public function __get($name)
     {
         if (isset($this->$name)) {
             return $this->$name;

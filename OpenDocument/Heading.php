@@ -70,6 +70,15 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
     const styleNamePrefix = 'H';
 
     /**
+     * Style family to use
+     *
+     * @var string
+     */
+    const styleFamily = 'paragraph';
+
+
+
+    /**
      * Constructor
      *
      * @param DOMNode $node
@@ -144,7 +153,7 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
      * @param string  $name
      * @return mixed
      */
-    protected function __get($name)
+    public function __get($name)
     {
         if ($value = parent::__get($name)) {
             return $value;

@@ -31,7 +31,7 @@
 
 require_once 'OpenDocument/ZipWrapper.php';
 require_once 'OpenDocument/Exception.php';
-require_once 'OpenDocument/Textelement.php';
+require_once 'OpenDocument/TextElement.php';
 require_once 'OpenDocument/Span.php';
 require_once 'OpenDocument/Paragraph.php';
 require_once 'OpenDocument/Heading.php';
@@ -244,7 +244,8 @@ class OpenDocument
     public function __construct($filename = '')
     {
         if (!strlen($filename)) {
-            $filename = dirname(__FILE__) . '/OpenDocument/templates/default.odt';
+            //FIXME
+            $filename = dirname(__FILE__) . '/data/templates/default.odt';
             $this->create = true;
         }
         
@@ -310,7 +311,7 @@ class OpenDocument
      * @param  string $name
      * @return mixed
      */
-    private function __get($name)
+    public function __get($name)
     {
         switch ($name) {
         case 'cursor':
@@ -484,7 +485,7 @@ class OpenDocument
         }
 
         $generate = false;
-        
+
         //get style node
         if ($count > 1) {
             $style = $this->getStyleNode($style_name)->cloneNode(true);
@@ -492,6 +493,7 @@ class OpenDocument
             $generate = true;
             $style_name = uniqid('tmp');//$object->generateStyleName();
             $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
+            $style->setAttributeNS(self::NS_STYLE, 'family', constant(get_class($object) . '::styleFamily'));
         } else {
             $style = $this->getStyleNode($style_name);
         }
@@ -503,7 +505,8 @@ class OpenDocument
             }
             $style = $this->contentDOM->createElementNS(self::NS_STYLE, 'style');
             $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
-            $style->setAttributeNS(self::NS_STYLE, 'family', 'paragraph');
+            //workaround for php5_2
+            $style->setAttributeNS(self::NS_STYLE, 'family', constant(get_class($object) . '::styleFamily'));
             $style->setAttributeNS(self::NS_STYLE, 'parent-style-name', 'Standard');
             $this->styles->appendChild($style);
         }
@@ -536,11 +539,12 @@ class OpenDocument
     /**
      * Get array of style values
      *
-     * @param string $style_name
-     * @param array $properties
+     * @param string $style_name Name of style to retrieve properties from
+     * @param array  $properties
+     *
      * @return array
      */
-    public function getStyle($style_name, $properties)
+    public function getStyle($style_name, array $properties)
     {
         $style = array();
         if ($node = $this->getStyleNode($style_name)) {
@@ -563,7 +567,7 @@ class OpenDocument
      * @param string $style_name
      * @return DOMNode
      */
-    private function getStyleNode($style_name)
+    protected function getStyleNode($style_name)
     {
         $nodes = $this->styles->getElementsByTagNameNS(self::NS_STYLE, 'style');
         foreach ($nodes as $node) {
@@ -785,6 +789,50 @@ class OpenDocument
         if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_MANIFEST, $xml)) {
             throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_MANIFEST_ERR);
         }
+    }
+
+
+
+    /**
+     * Returns the internal DOM document of the given type.
+     * Should be used for debugging and internal development purposes
+     * only - e.g. unit testing.
+     *
+     * @param string $type DOM to fetch: styles, manifest, settings, content, meta
+     *
+     * @return DOMDocument
+     *
+     * @throws OpenDocument_Exception If the type is unknown.
+     */
+    public function getDOM($type)
+    {
+        $variable = $type . 'DOM';
+        if (isset($this->$variable)) {
+            return $this->$variable;
+        }
+        throw new OpenDocument_Exception('No DOM for ' . $type);
+    }
+
+
+
+    /**
+     * Returns the internal XPath object of the given type.
+     * Should be used for debugging and internal development purposes
+     * only - e.g. unit testing.
+     *
+     * @param string $type XPath to fetch: styles, manifest, settings, content, meta
+     *
+     * @return DOMXath
+     *
+     * @throws OpenDocument_Exception If the type is unknown.
+     */
+    public function getXPath($type)
+    {
+        $variable = $type . 'XPath';
+        if (isset($this->$variable)) {
+            return $this->$variable;
+        }
+        throw new OpenDocument_Exception('No XPath for ' . $type);
     }
 }
 ?>
