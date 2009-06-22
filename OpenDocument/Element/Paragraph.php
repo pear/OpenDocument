@@ -1,6 +1,6 @@
 <?php
 /**
-* OpenDocument_Paragraph class
+* PEAR OpenDocument package.
 * 
 * PHP version 5
 *
@@ -30,7 +30,7 @@
 require_once 'OpenDocument/StyledElement.php';
 
 /**
-* OpenDocument_Paragraph element
+* Paragraph element
 *
 * @category   File Formats
 * @package    OpenDocument
@@ -40,7 +40,7 @@ require_once 'OpenDocument/StyledElement.php';
 * @link       http://pear.php.net/package/OpenDocument
 * @since      File available since Release 0.1.0
 */
-class OpenDocument_Paragraph extends OpenDocument_StyledElement
+class OpenDocument_Element_Paragraph extends OpenDocument_StyledElement
 {
     /**
      * Node namespace
@@ -74,7 +74,7 @@ class OpenDocument_Paragraph extends OpenDocument_StyledElement
     /**
      * Constructor
      *
-     * @param DOMNode $node
+     * @param DOMNode      $node
      * @param OpenDocument $document
      */
     public function __construct(DOMNode $node, OpenDocument $document)
@@ -90,9 +90,11 @@ class OpenDocument_Paragraph extends OpenDocument_StyledElement
     /**
      * Create element instance
      *
-     * @param mixed $object
-     * @param mixed $content
-     * @return OpenDocument_Paragraph
+     * @param mixed $object  Document or element to append paragraph to
+     * @param mixed $content Contents of paragraph
+     *
+     * @return OpenDocument_Element_Paragraph
+     *
      * @throws OpenDocument_Exception
      */
     public static function instance($object, $content)
@@ -107,7 +109,12 @@ class OpenDocument_Paragraph extends OpenDocument_StyledElement
             throw new OpenDocument_Exception(OpenDocument_Exception::ELEM_OR_DOC_EXPECTED);
         }
         
-        $element = new OpenDocument_Paragraph($node->ownerDocument->createElementNS(self::nodeNS, self::nodeName), $document);
+        $element = new OpenDocument_Element_Paragraph(
+            $node->ownerDocument->createElementNS(
+                self::nodeNS, self::nodeName
+            ),
+            $document
+        );
         $node->appendChild($element->node);
 
         if (is_scalar($content)) {
@@ -130,40 +137,46 @@ class OpenDocument_Paragraph extends OpenDocument_StyledElement
     /************** Elements ****************/
     
     /**
-     * Create OpenDocument_TextElement
+     * Create text element.
      *
-     * @param string $text
-     * @return OpenDocument_TextElement
+     * @param string $text Content for text element.
+     *
+     * @return OpenDocument_Element_Text
      */
     public function createTextElement($text)
     {
-        return OpenDocument_TextElement::instance($this, $text);
+        return OpenDocument_Element_Text::instance($this, $text);
     }
 
     /**
-     * Create OpenDocument_Hyperlink
+     * Create a hyperlink
      *
      * @param string $text
      * @param string $location
-     * @param string $type optional
-     * @param string $target optional
-     * @param string $name optional
-     * @return OpenDocument_Hyperlink
+     * @param string $type     optional
+     * @param string $target   optional
+     * @param string $name     optional
+     *
+     * @return OpenDocument_Element_Hyperlink
      */
-    public function createHyperlink($text, $location, $type = 'simple', $target = '', $name = '')
-    {
-        return OpenDocument_Hyperlink::instance($this, $text, $location, $type, $target, $name);
+    public function createHyperlink(
+        $text, $location, $type = 'simple', $target = '', $name = ''
+    ) {
+        return OpenDocument_Element_Hyperlink::instance(
+            $this, $text, $location, $type, $target, $name
+        );
     }
     
     /**
      * Create OpenDocument_Span element
      *
-     * @param string $text
-     * @return OpenDocument_Span
+     * @param string $text Content for span element
+     *
+     * @return OpenDocument_Element_Span
      */
     public function createSpan($text)
     {
-        return OpenDocument_Span::instance($this, $text);
+        return OpenDocument_Element_Span::instance($this, $text);
     }
 }
 ?>

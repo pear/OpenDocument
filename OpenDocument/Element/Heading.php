@@ -1,6 +1,6 @@
 <?php
 /**
-* OpenDocument_Heading class
+* PEAR OpenDocument package
 * 
 * PHP version 5
 *
@@ -36,11 +36,10 @@ require_once 'OpenDocument/StyledElement.php';
 * @package    OpenDocument
 * @author     Alexander Pak <irokez@gmail.com>
 * @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
 * @link       http://pear.php.net/package/OpenDocument
 * @since      File available since Release 0.1.0
 */
-class OpenDocument_Heading extends OpenDocument_StyledElement
+class OpenDocument_Element_Heading extends OpenDocument_StyledElement
 {
     /**
      * Heading level
@@ -81,7 +80,7 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
     /**
      * Constructor
      *
-     * @param DOMNode $node
+     * @param DOMNode      $node
      * @param OpenDocument $document
      */
     public function __construct(DOMNode $node, OpenDocument $document)
@@ -96,12 +95,13 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
     }
     
     /**
-     * Create OpenDocument_Heading element
+     * Create a heading element
      *
-     * @param mixed $object
-     * @param mixed $content
-     * @param integer $level optional
-     * @return OpenDocument_Heading
+     * @param mixed   $object  Document or element to append heading to
+     * @param mixed   $content Content of heading
+     * @param integer $level   Level from 1 to 6 (1 highest)
+     *
+     * @return OpenDocument_Element_Heading
      */
     public static function instance($object, $content, $level = 1)
     {
@@ -115,7 +115,12 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
             throw new OpenDocument_Exception(OpenDocument_Exception::ELEM_OR_DOC_EXPECTED);
         }
         
-        $element = new OpenDocument_Heading($node->ownerDocument->createElementNS(self::nodeNS, self::nodeName), $document);
+        $element = new OpenDocument_Element_Heading(
+            $node->ownerDocument->createElementNS(
+                self::nodeNS, self::nodeName
+            ),
+            $document
+        );
         $node->appendChild($element->node);
 
         if (is_scalar($content)) {
@@ -132,6 +137,8 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
      *
      * @param string $name
      * @param mixed $value
+     *
+     * @return void
      */
     public function __set($name, $value)
     {
@@ -177,40 +184,46 @@ class OpenDocument_Heading extends OpenDocument_StyledElement
     /************** Elements ***********************/
     
     /**
-     * Create OpenDocument_TextElement
+     * Create text element
      *
-     * @param string $text
-     * @return OpenDocument_TextElement
+     * @param string $text Contents
+     *
+     * @return OpenDocument_Element_Text
      */
     public function createTextElement($text)
     {
-        return OpenDocument_TextElement::instance($this, $text);
+        return OpenDocument_Element_Text::instance($this, $text);
     }
 
     /**
-     * Create OpenDocument_Hyperlink
+     * Create a hyperlink
      *
      * @param string $text
      * @param string $location
-     * @param string $type optional
-     * @param string $target optional
-     * @param string $name optional
-     * @return OpenDocument_Hyperlink
+     * @param string $type     optional
+     * @param string $target   optional
+     * @param string $name     optional
+     *
+     * @return OpenDocument_Element_Hyperlink
      */
-    public function createHyperlink($text, $location, $type = 'simple', $target = '', $name = '')
-    {
-        return OpenDocument_Hyperlink::instance($this, $text, $location, $type, $target, $name);
+    public function createHyperlink(
+        $text, $location, $type = 'simple', $target = '', $name = ''
+    ) {
+        return OpenDocument_Element_Hyperlink::instance(
+            $this, $text, $location, $type, $target, $name
+        );
     }
     
     /**
-     * Create OpenDocument_Span element
+     * Create span element
      *
-     * @param string $text
+     * @param string $text Content
+     *
      * @return OpenDocument_Span
      */
     public function createSpan($text)
     {
-        return OpenDocument_Span::instance($this, $text);
+        return OpenDocument_Element_Span::instance($this, $text);
     }
 }
 ?>

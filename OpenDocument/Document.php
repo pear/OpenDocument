@@ -1,9 +1,7 @@
 <?php
 /**
-* OpenDocument base class
+* PEAR OpenDocument package
 * 
-* OpenDocument class handles reading and modifying files in OpenDocument format
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -31,12 +29,12 @@
 
 require_once 'OpenDocument/ZipWrapper.php';
 require_once 'OpenDocument/Exception.php';
-require_once 'OpenDocument/TextElement.php';
-require_once 'OpenDocument/Span.php';
-require_once 'OpenDocument/Paragraph.php';
-require_once 'OpenDocument/Heading.php';
-require_once 'OpenDocument/Bookmark.php';
-require_once 'OpenDocument/Hyperlink.php';
+require_once 'OpenDocument/Element/Text.php';
+require_once 'OpenDocument/Element/Span.php';
+require_once 'OpenDocument/Element/Paragraph.php';
+require_once 'OpenDocument/Element/Heading.php';
+require_once 'OpenDocument/Element/Bookmark.php';
+require_once 'OpenDocument/Element/Hyperlink.php';
 
 /**
 * OpenDocument base class
@@ -47,9 +45,7 @@ require_once 'OpenDocument/Hyperlink.php';
 * @package    OpenDocument
 * @author     Alexander Pak <irokez@gmail.com>
 * @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
 * @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
 */
 class OpenDocument
 {
@@ -295,9 +291,15 @@ class OpenDocument
         $this->manifestXPath = new DOMXPath($this->manifestDOM);
         
         //set cursor
-        $this->cursor = $this->contentXPath->query('/office:document-content/office:body/office:text')->item(0);
-        $this->styles = $this->contentXPath->query('/office:document-content/office:automatic-styles')->item(0);
-        $this->fonts  = $this->contentXPath->query('/office:document-content/office:font-face-decls')->item(0);
+        $this->cursor = $this->contentXPath->query(
+            '/office:document-content/office:body/office:text'
+        )->item(0);
+        $this->styles = $this->contentXPath->query(
+            '/office:document-content/office:automatic-styles'
+        )->item(0);
+        $this->fonts  = $this->contentXPath->query(
+            '/office:document-content/office:font-face-decls'
+        )->item(0);
         $this->contentXPath->registerNamespace('text', self::NS_TEXT);
         
         $this->listChildren();
@@ -309,6 +311,7 @@ class OpenDocument
      * Provide read only access to cursor private variable
      *
      * @param  string $name
+     *
      * @return mixed
      */
     public function __get($name)
@@ -324,7 +327,6 @@ class OpenDocument
      * Get children list
      *
      * @return ArrayIterator
-     * @access public
      */
     public function getChildren()
     {
@@ -332,9 +334,9 @@ class OpenDocument
     }
     
     /**
-     * Create ArrayObject of document children objects
-     * 
-     * @access private
+     * Fills $this->children with all DOMNodes
+     *
+     * @return void
      */
     private function listChildren()
     {
@@ -364,7 +366,8 @@ class OpenDocument
      * Delete document child element
      *
      * @param OpenDocument_Element $element
-     * @access public
+     *
+     * @return void
      */
     public function deleteElement(OpenDocument_Element $element)
     {
@@ -374,12 +377,16 @@ class OpenDocument
     
     /**
      * Set maximum values of style name suffixes
-     * 
-     * @access private
+     *
+     * @return void
      */
     private function setMax()
     {
-        $classes = array('OpenDocument_Paragraph', 'OpenDocument_Heading', 'OpenDocument_Hyperlink');
+        $classes = array(
+            'OpenDocument_Element_Paragraph',
+            'OpenDocument_Element_Heading',
+            'OpenDocument_Element_Hyperlink'
+        );
         $max = array();
         if ($this->cursor instanceof DOMNode) {
             $nodes = $this->cursor->getElementsByTagName('*');
@@ -390,7 +397,9 @@ class OpenDocument
                         $reflection = new ReflectionClass($class);
                         $prefix = $reflection->getConstant('styleNamePrefix');
                         if (preg_match("/^$prefix(\d)+$/", $style_name, $m)) {
-                            $max[$class] = isset($max[$class]) ? ($max[$class] < $m[1] ? $m[1] : $max[$class]) : $m[1];
+                            $max[$class] = isset($max[$class])
+                                ? ($max[$class] < $m[1] ? $m[1]
+                                : $max[$class]) : $m[1];
                         }
                     }
                 }
@@ -408,37 +417,38 @@ class OpenDocument
     /************************* Elements **************************/
     
     /**
-     * Create OpenDocument_Paragraph
+     * Create paragraph
      *
-     * @param string $text optional
-     * @return OpenDocument_Paragraph
-     * @access public
+     * @param string $text Content of paragraph
+     *
+     * @return OpenDocument_Element_Paragraph
      */
     public function createParagraph($text = '')
     {
-        return OpenDocument_Paragraph::instance($this, $text);
+        return OpenDocument_Element_Paragraph::instance($this, $text);
     }
     
     /**
-     * Create Open_document_Heading
+     * Create heading
      *
-     * @param string $text
-     * @param integer $level
+     * @param string  $text  Contents of heading
+     * @param integer $level Level 1-6 (1 highest)
+     *
      * @return OpenDocument_Heading
-     * @access public
      */
     public function createHeading($text = '', $level = 1)
     {
-        return OpenDocument_Heading::instance($this, $text, $level);
+        return OpenDocument_Element_Heading::instance($this, $text, $level);
     }
 
     /**
-     * Create OpenDocument_Bookmark
+     * Create a bookmark
      *
      * @param string $name
-     * @param string $type
-     * @return OpenDocument_Bookmark
-     * @access public
+     * @param string $type 'start' or 'end'
+     *
+     * @return OpenDocument_Element_Bookmark
+     *
      * @todo finish method
      */
     public function createBookmark($name, $type = 'start')
@@ -446,7 +456,10 @@ class OpenDocument
         if (!in_array($type, array('start', 'end'))) {
             $type = 'start';
         }
-        $bookmark = new OpenDocument_Bookmark($this->contentDOM->createElementNS(self::NS_TEXT, 'bookmark-' . $type), $this, $name, $type);
+        $bookmark = new OpenDocument_Element_Bookmark(
+            $this->contentDOM->createElementNS(self::NS_TEXT, 'bookmark-' . $type),
+            $this, $name, $type
+        );
         $this->cursor->appendChild($bookmark->getNode());
         $bookmark->getNode()->setAttributeNS(self::NS_TEXT, 'name', $name);
         return $bookmark;
@@ -634,6 +647,7 @@ class OpenDocument
      *
      * @param mixed $node1
      * @param mixed $node2
+     *
      * @return bool
      */
     function compareNodes($node1, $node2)
@@ -682,7 +696,8 @@ class OpenDocument
      *
      * @param DOMNode $node1
      * @param DOMNode $node2
-     * @return bool
+     *
+     * @return bool True if they are equal
      */
     private function compareChildNodes(DOMNode $node1, DOMNode $node2)
     {
@@ -733,7 +748,9 @@ class OpenDocument
      */
     public function output()
     {
-        $list = $this->contentXPath->query('/office:document-content/office:font-face-decls/style:font-face');
+        $list = $this->contentXPath->query(
+            '/office:document-content/office:font-face-decls/style:font-face'
+        );
         echo $list->length;
         foreach ($list as $node) {
             echo '<br />';

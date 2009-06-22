@@ -1,9 +1,7 @@
 <?php
 /**
-* OpenDocument_TextElement class
+* PEAR OpenDocument package
 * 
-* OpenDocument_TextElement represents text in OpenDocument
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -32,9 +30,9 @@
 require_once 'OpenDocument/Element.php';
 
 /**
-* OpenDocument_TextElement class
+* OpenDocument_Element_Text class
 * 
-* OpenDocument_TextElement represents text in OpenDocument
+* Represents text in OpenDocument
 *
 * @category   File Formats
 * @package    OpenDocument
@@ -44,7 +42,7 @@ require_once 'OpenDocument/Element.php';
 * @link       http://pear.php.net/package/OpenDocument
 * @since      File available since Release 0.1.0
 */
-class OpenDocument_TextElement extends OpenDocument_Element
+class OpenDocument_Element_Text extends OpenDocument_Element
 {
     /**
      * Element text
@@ -68,9 +66,10 @@ class OpenDocument_TextElement extends OpenDocument_Element
     /**
      * Create object instance
      *
-     * @param mixed $object
-     * @param string $text
-     * @return OpenDocument_TextElement
+     * @param mixed  $object Document or Element to append text to
+     * @param string $text   Contents of text element
+     *
+     * @return OpenDocument_Element_Text
      */
     public static function instance($object, $text)
     {
@@ -83,7 +82,9 @@ class OpenDocument_TextElement extends OpenDocument_Element
         } else {
             throw new Exception('Object must be OpenDocument or OpenDocument_Element');
         }
-        $element = new OpenDocument_TextElement($node->ownerDocument->createTextNode($text), $document);
+        $element = new OpenDocument_Element_Text(
+            $node->ownerDocument->createTextNode($text), $document
+        );
         $node->appendChild($element->node);
         $element->text = $text;
         return $element;
@@ -95,6 +96,8 @@ class OpenDocument_TextElement extends OpenDocument_Element
      *
      * @param string $name
      * @param mixed $value
+     *
+     * @return void
      */
     public function __set($name, $value)
     {

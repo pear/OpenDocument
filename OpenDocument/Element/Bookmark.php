@@ -1,6 +1,7 @@
 <?php
 require_once 'OpenDocument/Element.php';
-class OpenDocument_Bookmark extends OpenDocument_Element
+
+class OpenDocument_Element_Bookmark extends OpenDocument_Element
 {
     private $name;
     

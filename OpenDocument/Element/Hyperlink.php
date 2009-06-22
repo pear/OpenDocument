@@ -1,6 +1,6 @@
 <?php
 /**
-* OpenDocument_Hyperlink class
+* PEAR OpenDocument package
 * 
 * PHP version 5
 *
@@ -30,17 +30,16 @@
 require_once 'OpenDocument/StyledElement.php';
 
 /**
-* OpenDocument_Hyperlink element
+* OpenDocument hyperlink element
 *
 * @category   File Formats
 * @package    OpenDocument
 * @author     Alexander Pak <irokez@gmail.com>
 * @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
 * @link       http://pear.php.net/package/OpenDocument
 * @since      File available since Release 0.1.0
 */
-class OpenDocument_Hyperlink extends OpenDocument_StyledElement
+class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
 {
     /**
      * Link location
@@ -101,7 +100,7 @@ class OpenDocument_Hyperlink extends OpenDocument_StyledElement
     /**
      * Constructor
      *
-     * @param DOMNode $node
+     * @param DOMNode      $node
      * @param OpenDocument $document
      */
     public function __construct(DOMNode $node, OpenDocument $document)
@@ -113,20 +112,21 @@ class OpenDocument_Hyperlink extends OpenDocument_StyledElement
         $this->name     = $node->getAttributeNS(OpenDocument::NS_OFFICE, 'name');
         
         $this->allowedElements = array(
-            'OpenDocument_Span',
+            'OpenDocument_Element_Span',
         );
     }
 
     /**
-     * Create OpenDocument_Hyperlink instance
+     * Create hyperlink instance
      *
-     * @param mixed $object
-     * @param mixed $content
-     * @param string $location
-     * @param string $type optional
-     * @param string $target optional 
-     * @param string $name optional
-     * @return OpenDocument_Hyperlink
+     * @param mixed  $object   Document or element to append link to
+     * @param mixed  $content  (Text) content of hyperlink
+     * @param string $location Hyperlink URL
+     * @param string $type     optional
+     * @param string $target   optional 
+     * @param string $name     optional
+     *
+     * @return OpenDocument_Element_Hyperlink
      */
     public static function instance($object, $content, $location, $type = 'simple', $target = '', $name = '')
     {
@@ -140,7 +140,12 @@ class OpenDocument_Hyperlink extends OpenDocument_StyledElement
             throw new Exception('Object must be OpenDocument or OpenDocument_Element');
         }
         
-        $element = new OpenDocument_Hyperlink($node->ownerDocument->createElementNS(self::nodeNS, self::nodeName), $document);
+        $element = new OpenDocument_Element_Hyperlink(
+            $node->ownerDocument->createElementNS(
+                self::nodeNS, self::nodeName
+            ),
+            $document
+        );
         $node->appendChild($element->node);
 
         $element->__set('location', $location);
@@ -160,6 +165,8 @@ class OpenDocument_Hyperlink extends OpenDocument_StyledElement
      *
      * @param string $name
      * @param mixed $value
+     *
+     * @return void
      */
     public function __set($name, $value)
     {
@@ -217,25 +224,27 @@ class OpenDocument_Hyperlink extends OpenDocument_StyledElement
     /************** Elements ***********************/
 
     /**
-     * Create OpenDocument_TextElement
+     * Create a text element
      *
-     * @param string $text
-     * @return OpenDocument_TextElement
+     * @param string $text Content of text element
+     *
+     * @return OpenDocument_Element_Text
      */
     public function createTextElement($text)
     {
-        return OpenDocument_TextElement::instance($this, $text);
+        return OpenDocument_Element_Text::instance($this, $text);
     }
     
     /**
-     * Create OpenDocument_Span element
+     * Create a span element
      *
      * @param string $text
-     * @return OpenDocument_Span
+     *
+     * @return OpenDocument_Element_Span
      */
     public function createSpan($text)
     {
-        return OpenDocument_Span::instance($this, $text);
+        return OpenDocument_Element_Span::instance($this, $text);
     }
 }
 ?>

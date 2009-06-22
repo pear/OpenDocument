@@ -1,6 +1,6 @@
 <?php
 /**
-* OpenDocument_Span class
+* PEAR OpenDocument package
 * 
 * PHP version 5
 *
@@ -36,11 +36,10 @@ require_once 'OpenDocument/StyledElement.php';
 * @package    OpenDocument
 * @author     Alexander Pak <irokez@gmail.com>
 * @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
 * @link       http://pear.php.net/package/OpenDocument
 * @since      File available since Release 0.1.0
 */
-class OpenDocument_Span extends OpenDocument_StyledElement
+class OpenDocument_Element_Span extends OpenDocument_StyledElement
 {
     /**
      * Node namespace
@@ -72,9 +71,11 @@ class OpenDocument_Span extends OpenDocument_StyledElement
     /**
      * Create element instance
      *
-     * @param mixed $object
-     * @param mixed $content
-     * @return OpenDocument_Span
+     * @param mixed $object  Document or Element to append span to
+     * @param mixed $content Span contents
+     *
+     * @return OpenDocument_Element_Span
+     *
      * @throws OpenDocument_Exception
      */
     public static function instance($object, $content)
@@ -89,7 +90,12 @@ class OpenDocument_Span extends OpenDocument_StyledElement
             throw new OpenDocument_Exception(OpenDocument_Exception::ELEM_OR_DOC_EXPECTED);
         }
         
-        $element = new OpenDocument_Span($node->ownerDocument->createElementNS(self::nodeNS, self::nodeName), $document);
+        $element = new OpenDocument_Element_Span(
+            $node->ownerDocument->createElementNS(
+                self::nodeNS, self::nodeName
+            ),
+            $document
+        );
         $node->appendChild($element->node);
 
         if (is_scalar($content)) {
@@ -113,14 +119,15 @@ class OpenDocument_Span extends OpenDocument_StyledElement
     /************** Elements ****************/
     
     /**
-     * Create OpenDocument_TextElement
+     * Create a text element
      *
      * @param string $text
-     * @return OpenDocument_TextElement
+     *
+     * @return OpenDocument_Element_Text
      */
     public function createTextElement($text)
     {
-        return OpenDocument_TextElement::instance($this, $text);
+        return OpenDocument_Element_Text::instance($this, $text);
     }
 }
 ?>
