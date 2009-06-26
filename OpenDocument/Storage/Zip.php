@@ -295,11 +295,8 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
                $res
             );
         }
-        /* - add mimetype uncompressed
-         * - create manifest
-         * - add files, add files to manifest
-         * - save
-         */
+        //as soon as ZipArchive exposes compression options,
+        // FIXME this and make it uncompressed
         $zip->addFromString(
             'mimetype',
             $this->getMimeTypeFromContent($this->contentDom)

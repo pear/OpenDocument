@@ -199,6 +199,11 @@ class OpenDocument
     const FILE_MANIFEST = 'META-INF/manifest.xml';
 
     /**
+     * Manifest namespace
+     */
+    const NS_MANIFEST = 'urn:oasis:names:tc:opendocument:xmlns:manifest:1.0';
+
+    /**
      * text namespace URL
      */
     const NS_TEXT = 'urn:oasis:names:tc:opendocument:xmlns:text:1.0';
