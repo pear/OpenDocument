@@ -1,0 +1,169 @@
+<?php
+
+
+/**
+ * Generic OpenDocument data and file storage interface.
+ * Each storage mechanism needs to implement this interface.
+ *
+ * The OpenDocument specification defines two document
+ * representations:
+ * - one single XML element
+ * - a ZIP file containing several subdocuments
+ *
+ * By providing an implementation agnostic interface, we can
+ * easily support both modes.
+ *
+ * @author Christian Weiske <cweiske@php.net>
+ */
+interface OpenDocument_Storage
+{
+    /**
+     * Creates a new file.
+     * The file name may be passed, but can be omitted if the
+     * final storage location is not known yet.
+     *
+     * Storage drivers might create temporary directories or files
+     * in case no file name is given here.
+     *
+     * @param string $file Name of the file to be created
+     *
+     * @return void
+     *
+     * @throws OpenDocument_Exception In case creating the given file
+     *                                is not possible.
+     */
+    public function create($file = null);
+
+    /**
+     * Opens the given file.
+     * An implementation might open the zip file
+     * or verify that the file itself exists.
+     *
+     * @param string $file Path of the file to open.
+     *
+     * @return void
+     *
+     * @throws OpenDocument_Exception In case loading the file
+     *                                did not work or the file
+     *                                does not exist.
+     *
+     * @see create()
+     */
+    public function open($file);
+
+    /**
+     * Returns the Dom object containing the content.
+     *
+     * @return DOMDocument
+     */
+    public function getContentDom();
+
+
+    /**
+     * Returns the Dom object containing the meta data.
+     *
+     * @return DOMDocument
+     */
+    public function getMetaDom();
+
+
+    /**
+     * Returns the Dom object containing the settings.
+     *
+     * @return DOMDocument
+     */
+    public function getSettingsDom();
+
+
+    /**
+     * Returns the Dom object containing the styles.
+     *
+     * @return DOMDocument
+     */
+    public function getStylesDom();
+
+    /**
+     * Saves the file as the given file name.
+     *
+     * @param string $file Path of the file to open.
+     *
+     * @return void
+     *
+     * @throws OpenDocument_Exception In case saving the file
+     *                                did not work.
+     *
+     * @see create()
+     * @see open()
+     */
+    public function save($file = null);
+
+    /**
+     * Sets the DOM object containing the content.
+     * <office:document-content>
+     *
+     * @param DOMDocument $content Content object
+     *
+     * @return void
+     */
+    public function setContentDom(DOMDocument $content);
+
+    /**
+     * Sets the DOM object containing the meta data.
+     * <office:document-meta>
+     *
+     * @param DOMDocument $content Meta object
+     *
+     * @return void
+     */
+    public function setMetaDom(DOMDocument $meta);
+
+    /**
+     * Sets the DOM object containing the settings.
+     * <office:document-settings>
+     *
+     * @param DOMDocument $content Settings object
+     *
+     * @return void
+     */
+    public function setSettingsDom(DOMDocument $settings);
+
+    /**
+     * Sets the DOM object containing the styles..
+     * <office:document-styles>
+     *
+     * @param DOMDocument $content Styles object
+     *
+     * @return void
+     */
+    public function setStylesDom(DOMDocument $styles);
+
+    /**
+     * Adds a file to the document.
+     * Returns the file name that has to be used to reference
+     * the file in the document content.
+     *
+     * @param string $path     File path
+     * @param string $mimetype MIME type of the file. Leave it null
+     *                         for auto detection.
+     *
+     * @return string Relative filename that has to be used to
+     *                reference the file in content.
+     *
+     * @see removeFile()
+     */
+    public function addFile($path, $mimetype = null);
+
+    /**
+     * Removes an already added file from the document.
+     *
+     * @param string $relpath Relative path that was returned
+     *                        by addFile()
+     *
+     * @return void
+     *
+     * @see addFile()
+     */
+    public function removeFile($relpath);
+}
+
+?>
