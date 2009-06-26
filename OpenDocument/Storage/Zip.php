@@ -13,6 +13,9 @@
 * @since    File available since Release 0.2.0
 */
 
+require_once 'OpenDocument/Manifest.php';
+require_once 'OpenDocument/Storage.php';
+
 /**
  * Zip storage - the default OpenDocument storage.
  * Creates one zip file containing several XML files.
@@ -31,7 +34,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
     /**
      * Zip document
      *
-     * @var Zip_Archive
+     * @var ZipArchive
      */
     protected $zip = null;
 
@@ -88,11 +91,11 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         }
 
         //load file content
-        $this->loadFile(self::getTemlateFile($type));
+        $this->loadFile(self::getTemplateFile($type));
 
         //reset file name to our new file to prevent overwriting the template
         $this->file = $file;
-    }
+    }//public function create(..)
 
 
 
@@ -115,7 +118,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         $this->checkWritability();
 
         $this->loadFile($file);
-    }
+    }//public function open(..)
 
 
 
@@ -172,7 +175,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     protected function loadFile($file)
     {
-        $zip = new Zip_Archive();
+        $zip = new ZipArchive();
         if (!$zip->open($file)) {
             throw new OpenDocument_Exception('Cannot open ZIP file: ' . $file);
         }
@@ -188,15 +191,15 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
     /**
      * Loads the DOM document of the given file name from the zip archive
      *
-     * @param Zip_Archive $zip  Opened ZIP file object
-     * @param string      $file Relative path of file to load from zip
+     * @param ZipArchive $zip  Opened ZIP file object
+     * @param string     $file Relative path of file to load from zip
      *
      * @return DOMDocument Document of XML file
      *
      * @throws OpenDocument_Exception In case the file does not exist in 
      *                                the zip.
      */
-    protected function loadDomFromZip(Zip_Archive $zip, $file)
+    protected function loadDomFromZip(ZipArchive $zip, $file)
     {
         $index = $zip->locate($file);
         if ($index === false) {
@@ -218,7 +221,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function getContentDom()
     {
+        return $this->contentDom;
     }
+
+
 
     /**
      * Returns the DOM object containing the meta data.
@@ -227,7 +233,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function getMetaDom()
     {
+        return $this->metaDom;
     }
+
+
 
     /**
      * Returns the DOM object containing the settings.
@@ -236,7 +245,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function getSettingsDom()
     {
+        return $this->settingsDom;
     }
+
+
 
     /**
      * Returns the DOM object containing the styles.
@@ -245,12 +257,15 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function getStylesDom()
     {
+        return $this->stylesDom;
     }
+
+
 
     /**
      * Saves the file as the given file name.
      *
-     * @param string $file Path of the file to open.
+     * @param string $file Path of the file to save.
      *
      * @return void
      *
@@ -262,7 +277,69 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function save($file = null)
     {
-    }
+        if ($file === null) {
+            $file = $this->file;
+        }
+        if ($file === null) {
+            throw new OpenDocument_Exception(
+                'No file name given for saving'
+            );
+        }
+
+        $zip = new ZipArchive();
+        $zip->open($file, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+        if ($res !== true) {
+            //FIXME: find a better way to pass on the zip error code
+            throw new OpenDocument_Exception(
+               'Failed to open zip file for saving: ' . $file,
+               $res
+            );
+        }
+        /* - add mimetype uncompressed
+         * - create manifest
+         * - add files, add files to manifest
+         * - save
+         */
+        $zip->addFromString(
+            'mimetype',
+            $this->getMimeTypeFromContent($this->contentDom)
+        );
+        $manifest = new OpenDocument_Storage_Manifest();
+        $manifest->addFile('content.xml', 'text/xml');
+        $zip->addFromString('content.xml', $this->contentDom->saveXML());
+
+        $manifest->addFile('meta.xml', 'text/xml');
+        $zip->addFromString('meta.xml', $this->metaDom->saveXML());
+
+        $manifest->addFile('settings.xml', 'text/xml');
+        $zip->addFromString('settings.xml', $this->settingsDom->saveXML());
+
+        $manifest->addFile('styles.xml', 'text/xml');
+        $zip->addFromString('styles.xml', $this->stylesDom->saveXML());
+
+        //FIXME: add image files added with addFile()
+
+        $zip->addFile('META-INF/manifest.xml', (string)$manifest);
+
+        $zip->close();
+    }//public function save(..)
+
+
+
+    /**
+     * Extracts the textual MIME type from the content DOM object
+     *
+     * @param DOMDocument $content DOM object of content
+     *
+     * @return string MIME type
+     */
+    protected function getMimeTypeFromContent(DOMDocument $content)
+    {
+        //FIXME: read root mime type attribute from dom
+        return 'application/vnd.oasis.opendocument.text';
+    }//protected function getMimeTypeFromContent(..)
+
+
 
     /**
      * Sets the DOM object containing the content.
@@ -274,7 +351,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function setContentDom(DOMDocument $content)
     {
+        $this->contentDom = $content;
     }
+
+
 
     /**
      * Sets the DOM object containing the meta data.
@@ -286,7 +366,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function setMetaDom(DOMDocument $meta)
     {
+        $this->metaDom = $meta;
     }
+
+
 
     /**
      * Sets the DOM object containing the settings.
@@ -298,10 +381,13 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function setSettingsDom(DOMDocument $settings)
     {
+        $this->settingsDom = $settings;
     }
 
+
+
     /**
-     * Sets the DOM object containing the styles..
+     * Sets the DOM object containing the styles.
      * <office:document-styles>
      *
      * @param DOMDocument $content Styles object
@@ -310,7 +396,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function setStylesDom(DOMDocument $styles)
     {
+        $this->stylesDom = $styles;
     }
+
+
 
     /**
      * Adds a file to the document.
@@ -331,6 +420,8 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         throw new OpenDocument_Exception('Adding files not supported yet');
     }
 
+
+
     /**
      * Removes an already added file from the document.
      *
@@ -344,6 +435,41 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
     public function removeFile($relpath)
     {
         throw new OpenDocument_Exception('Removing files not supported yet');
+    }
+
+
+
+    /**
+     * Returns the path of a template file for the given file type.
+     *
+     * @param string $type File type ('text', 'spreadsheet')
+     *
+     * @return string Path of the file, null if there is no file for it
+     */
+    public static function getTemplateFile($type)
+    {
+        $file = null;
+        switch ($type) {
+        case 'text':
+            $file = 'default.odt';
+        case 'spreadsheet':
+            $file = 'default.ods';
+            break;
+        }
+
+        if (!$file) {
+            return null;
+        }
+
+        if ('@data_dir@' == '@' . 'data_dir@') {
+            $path = dirname(__FILE__) . '/../../data/templates/' . $file;
+        } else {
+            require_once "PEAR/Config.php";
+            $path = PEAR_Config::singleton()->get('data_dir')
+                . '/OpenDocument/templates/' . $file;
+        }
+
+        return $path;
     }
 }
 
