@@ -1,5 +1,17 @@
 <?php
-
+/**
+* PEAR OpenDocument package
+* 
+* PHP version 5
+*
+* @category File Formats
+* @package  OpenDocument
+* @author   Christian Weiske <cweiske@php.et>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  @package_version@
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.2.0
+*/
 
 /**
  * Generic OpenDocument data and file storage interface.
@@ -7,7 +19,7 @@
  *
  * The OpenDocument specification defines two document
  * representations:
- * - one single XML element
+ * - one single large XML document
  * - a ZIP file containing several subdocuments
  *
  * By providing an implementation agnostic interface, we can
@@ -22,9 +34,10 @@ interface OpenDocument_Storage
      * The file name may be passed, but can be omitted if the
      * final storage location is not known yet.
      *
-     * Storage drivers might create temporary directories or files
-     * in case no file name is given here.
+     * Storage drivers may choose to create temporary files or
+     * directories in case no file name is given here.
      *
+     * @param string $type Document type ('text', 'spreadsheet')
      * @param string $file Name of the file to be created
      *
      * @return void
@@ -32,7 +45,7 @@ interface OpenDocument_Storage
      * @throws OpenDocument_Exception In case creating the given file
      *                                is not possible.
      */
-    public function create($file = null);
+    public function create($type, $file = null);
 
     /**
      * Opens the given file.
@@ -58,7 +71,6 @@ interface OpenDocument_Storage
      */
     public function getContentDom();
 
-
     /**
      * Returns the Dom object containing the meta data.
      *
@@ -66,14 +78,12 @@ interface OpenDocument_Storage
      */
     public function getMetaDom();
 
-
     /**
      * Returns the Dom object containing the settings.
      *
      * @return DOMDocument
      */
     public function getSettingsDom();
-
 
     /**
      * Returns the Dom object containing the styles.
