@@ -6,7 +6,7 @@
 *
 * @category File Formats
 * @package  OpenDocument
-* @author   Christian Weiske <cweiske@php.et>
+* @author   Christian Weiske <cweiske@php.net>
 * @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
 * @version  @package_version@
 * @link     http://pear.php.net/package/OpenDocument
