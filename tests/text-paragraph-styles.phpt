@@ -1,4 +1,6 @@
 --TEST--
+Paragraphs and span style families.
+--DESCRIPTION--
 Check if paragraphs and span elements get different style families.
 - bug #13002: styles for span elements are rendered with incorrect style:family
 --FILE--

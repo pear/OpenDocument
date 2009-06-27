@@ -114,8 +114,8 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function open($file)
     {
-        $this->checkReadability();
-        $this->checkWritability();
+        $this->checkReadability($file);
+        $this->checkWritability($file);
 
         $this->loadFile($file);
     }//public function open(..)
@@ -176,7 +176,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
     protected function loadFile($file)
     {
         $zip = new ZipArchive();
-        if (!$zip->open($file)) {
+        if ($zip->open($file) !== true) {
             throw new OpenDocument_Exception('Cannot open ZIP file: ' . $file);
         }
         $this->contentDom  = $this->loadDomFromZip($zip, 'content.xml');
@@ -201,7 +201,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     protected function loadDomFromZip(ZipArchive $zip, $file)
     {
-        $index = $zip->locate($file);
+        $index = $zip->locateName($file);
         if ($index === false) {
             throw new OpenDocument_Exception('File not found in zip: ' . $file);
         }
@@ -287,7 +287,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         }
 
         $zip = new ZipArchive();
-        $zip->open($file, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+        $res = $zip->open($file, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
         if ($res !== true) {
             //FIXME: find a better way to pass on the zip error code
             throw new OpenDocument_Exception(
@@ -301,7 +301,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
             'mimetype',
             $this->getMimeTypeFromContent($this->contentDom)
         );
-        $manifest = new OpenDocument_Storage_Manifest();
+        $manifest = new OpenDocument_Manifest();
         $manifest->addFile('content.xml', 'text/xml');
         $zip->addFromString('content.xml', $this->contentDom->saveXML());
 
@@ -316,7 +316,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
 
         //FIXME: add image files added with addFile()
 
-        $zip->addFile('META-INF/manifest.xml', (string)$manifest);
+        $zip->addFromString('META-INF/manifest.xml', (string)$manifest);
 
         $zip->close();
     }//public function save(..)
@@ -449,6 +449,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         switch ($type) {
         case 'text':
             $file = 'default.odt';
+            break;
         case 'spreadsheet':
             $file = 'default.ods';
             break;
