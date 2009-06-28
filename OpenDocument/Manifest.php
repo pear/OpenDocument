@@ -4,11 +4,11 @@
 * 
 * PHP version 5
 *
-* @category File Formats
+* @category File_Formats
 * @package  OpenDocument
 * @author   Christian Weiske <cweiske@php.net>
-* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version  @package_version@
+* @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+* @version  CVS: $Id$
 * @link     http://pear.php.net/package/OpenDocument
 * @since    File available since Release 0.2.0
 */
@@ -18,7 +18,11 @@ require_once 'OpenDocument.php';
 /**
  * ZIP Manifest file
  *
- * @author Christian Weiske <cweiske@php.net>
+ * @category File_Formats
+ * @package  OpenDocument
+ * @author   Christian Weiske <cweiske@php.net>
+ * @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+ * @link     http://pear.php.net/package/OpenDocument
  */
 class OpenDocument_Manifest
 {

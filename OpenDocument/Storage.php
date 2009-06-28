@@ -4,11 +4,11 @@
 * 
 * PHP version 5
 *
-* @category File Formats
+* @category File_Formats
 * @package  OpenDocument
 * @author   Christian Weiske <cweiske@php.net>
 * @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version  @package_version@
+* @version  CVS: $Id$
 * @link     http://pear.php.net/package/OpenDocument
 * @since    File available since Release 0.2.0
 */
@@ -25,7 +25,11 @@
  * By providing an implementation agnostic interface, we can
  * easily support both modes.
  *
- * @author Christian Weiske <cweiske@php.net>
+ * @category File_Formats
+ * @package  OpenDocument
+ * @author   Christian Weiske <cweiske@php.net>
+ * @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+ * @link     http://pear.php.net/package/OpenDocument
  */
 interface OpenDocument_Storage
 {
@@ -121,7 +125,7 @@ interface OpenDocument_Storage
      * Sets the DOM object containing the meta data.
      * <office:document-meta>
      *
-     * @param DOMDocument $content Meta object
+     * @param DOMDocument $meta Meta object
      *
      * @return void
      */
@@ -131,7 +135,7 @@ interface OpenDocument_Storage
      * Sets the DOM object containing the settings.
      * <office:document-settings>
      *
-     * @param DOMDocument $content Settings object
+     * @param DOMDocument $settings Settings object
      *
      * @return void
      */
@@ -141,7 +145,7 @@ interface OpenDocument_Storage
      * Sets the DOM object containing the styles..
      * <office:document-styles>
      *
-     * @param DOMDocument $content Styles object
+     * @param DOMDocument $styles Styles object
      *
      * @return void
      */
