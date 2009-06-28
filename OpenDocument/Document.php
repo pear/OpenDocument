@@ -18,16 +18,15 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
-require_once 'OpenDocument/ZipWrapper.php';
 require_once 'OpenDocument/Exception.php';
 require_once 'OpenDocument/Element/Text.php';
 require_once 'OpenDocument/Element/Span.php';
@@ -41,11 +40,11 @@ require_once 'OpenDocument/Element/Hyperlink.php';
 *
 * OpenDocument class handles reading and modifying files in OpenDocument format
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @link       http://pear.php.net/package/OpenDocument
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
 */
 class OpenDocument
 {
@@ -57,105 +56,106 @@ class OpenDocument
     private $path;
     
     /**
-     * DOMNode of current node
+     * DOMNode of content node
      *
      * @var DOMNode
      */
     private $cursor;
     
     /**
-     * DOMNode contains style information
+     * DOMNode with style information
      *
      * @var DOMNode
      */
     private $styles;
     
     /**
-     * DOMNode contains fonts declarations
+     * DOMNode with fonts declarations
      *
      * @var DOMNode
      */
     private $fonts;
     
     /**
-     * Mime type information
+     * Plain text MIME type of document
      *
      * @var string
      */
     private $mimetype;
     
     /**
-     * Flag indicates whether it is a new file
+     * Flag indicates whether it is a new file.
+     * When false, the current file is overwritten.
      *
      * @var bool
      */
     private $create = false;
 
     /**
-     * DOMDocument for content file
+     * DOM document for content
      *
      * @var DOMDocument
      */
     private $contentDOM;
 
     /**
-     * DOMXPath object for content file
+     * DOMXPath object for content
      *
      * @var DOMXPath
      */
     private $contentXPath;
 
     /**
-     * DOMDocument for meta file
+     * DOMDocument for meta information
      *
      * @var DOMDocument
      */
     private $metaDOM;
 
     /**
-     * DOMXPath for meta file
+     * DOMXPath for meta information
      *
      * @var DOMXPath
      */
     private $metaXPath;
 
     /**
-     * DOMDocument for settings file
+     * DOMDocument for settings
      *
      * @var DOMDocument
      */
     private $settingsDOM;
 
     /**
-     * DOMXPath for setting file
+     * DOMXPath for settings
      *
      * @var DOMXPath
      */
     private $settingsXPath;
 
     /**
-     * DOMDocument for styles file
+     * DOMDocument for styles
      *
      * @var DOMDocument
      */
     private $stylesDOM;
 
     /**
-     * DOMXPath for styles file
+     * DOMXPath for styles
      *
      * @var DOMXPath
      */
     private $stylesXPath;
 
     /**
-     * DOMDocument for styles file
+     * DOMDocument for manifest
      *
      * @var DOMDocument
      */
     private $manifestDOM;
 
     /**
-     * DOMXPath for manifest file
+     * DOMXPath for manifest
      *
      * @var DOMXPath
      */
@@ -233,12 +233,14 @@ class OpenDocument
      */
     const NS_XLINK = 'http://www.w3.org/1999/xlink';
 
+
+
     /**
      * Constructor
      *
-     * @param string $filename optional
-     *               specify file name if you want to open existing file
-     *               to create new document pass nothing or empty string
+     * @param string $filename Specify a file name if you want to open
+     *                         an existing file. To create new document
+     *                         pass nothing or an empty string.
      *
      * @throws OpenDocument_Exception
      */
@@ -312,12 +314,11 @@ class OpenDocument
     }
 
     /**
-     * Magic method
      * Provide read only access to cursor private variable
      *
-     * @param  string $name
+     * @param string $name Variable to read
      *
-     * @return mixed
+     * @return mixed Variable contents
      */
     public function __get($name)
     {
@@ -474,18 +475,21 @@ class OpenDocument
     /********************* Styles ****************************/   
     
     /**
-     * Apply style information to object
-     * If object has no style information yet, then create new style node
-     * If object style information is similar to other object's style info, then apply the same style name
-     *     And if object old style information was not shared with other objects then delete old style info
-     *     Else leave old style info
-     * Else just add new style description
+     * Apply style information to object.
      *
-     * @param string $style_name
-     * @param string $name
-     * @param mixed $value
+     * If object has no style information yet, then create new
+     * style node. If object style information is similar to other
+     * object's style info, then apply the same style name.
+     * And if object old style information was not shared with other
+     * objects then delete old style info.
+     * Otherwise leave old style info or just add new style description
+     *
+     * @param string                     $style_name Name of style to apply
+     * @param string                     $name       
+     * @param mixed                      $value
      * @param OpenDocument_StyledElement $object
-     * @return string $style_name
+     *
+     * @return string Name of style that has been applied
      */
     public function applyStyle($style_name, $name, $value, OpenDocument_StyledElement $object)
     {
@@ -494,7 +498,8 @@ class OpenDocument
         $count = 0;
         foreach ($nodes as $node) {
             if ($node->hasAttributeNS(self::NS_TEXT, 'style-name')
-             && $node->getAttributeNS(self::NS_TEXT, 'style-name') == $style_name) {
+                && $node->getAttributeNS(self::NS_TEXT, 'style-name') == $style_name
+            ) {
                 $count ++;
                 if ($count > 1) {
                     break;
@@ -511,7 +516,10 @@ class OpenDocument
             $generate = true;
             $style_name = uniqid('tmp');//$object->generateStyleName();
             $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
-            $style->setAttributeNS(self::NS_STYLE, 'family', constant(get_class($object) . '::styleFamily'));
+            $style->setAttributeNS(
+                self::NS_STYLE, 'family',
+                constant(get_class($object) . '::styleFamily')
+            );
         } else {
             $style = $this->getStyleNode($style_name);
         }
@@ -524,7 +532,10 @@ class OpenDocument
             $style = $this->contentDOM->createElementNS(self::NS_STYLE, 'style');
             $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
             //workaround for php5_2
-            $style->setAttributeNS(self::NS_STYLE, 'family', constant(get_class($object) . '::styleFamily'));
+            $style->setAttributeNS(
+                self::NS_STYLE, 'family',
+                constant(get_class($object) . '::styleFamily')
+            );
             $style->setAttributeNS(self::NS_STYLE, 'parent-style-name', 'Standard');
             $this->styles->appendChild($style);
         }
@@ -533,13 +544,17 @@ class OpenDocument
         if ($nodes->length) {
             $text_properties = $nodes->item(0);
         } else {
-            $text_properties = $this->contentDOM->createElementNS(self::NS_STYLE, 'text-properties');
+            $text_properties = $this->contentDOM->createElementNS(
+                self::NS_STYLE, 'text-properties'
+            );
             $style->appendChild($text_properties);
         }
         $text_properties->setAttribute($name, $value);
 
         //find alike style
-        $nodes = $this->styles->getElementsByTagNameNS(self::NS_STYLE, 'style');
+        $nodes = $this->styles->getElementsByTagNameNS(
+            self::NS_STYLE, 'style'
+        );
         foreach ($nodes as $node) {
             if (!$style->isSameNode($node) && $this->compareChildNodes($style, $node)) {
                 $style->parentNode->removeChild($style);
@@ -558,15 +573,18 @@ class OpenDocument
      * Get array of style values
      *
      * @param string $style_name Name of style to retrieve properties from
-     * @param array  $properties
+     * @param array  $properties Array of namespace-prefixed properties to
+     *                           retrieve
      *
-     * @return array
+     * @return array Key-value array of properties and their values
      */
     public function getStyle($style_name, array $properties)
     {
         $style = array();
         if ($node = $this->getStyleNode($style_name)) {
-            $nodes = $node->getElementsByTagNameNS(self::NS_STYLE, 'text-properties');
+            $nodes = $node->getElementsByTagNameNS(
+                self::NS_STYLE, 'text-properties'
+            );
             if ($nodes->length) {
                 $text_properties = $nodes->item(0);
                 foreach ($properties as $property) {
@@ -582,8 +600,9 @@ class OpenDocument
     /**
      * Get style node
      *
-     * @param string $style_name
-     * @return DOMNode
+     * @param string $style_name Name of style
+     *
+     * @return DOMNode Style node
      */
     protected function getStyleNode($style_name)
     {
@@ -600,9 +619,10 @@ class OpenDocument
     /**
      * Check if two style info are similar
      *
-     * @param string $style_name1
-     * @param string $style_name2
-     * @return bool
+     * @param string $style_name1 Name of first style
+     * @param string $style_name2 Name of second style
+     *
+     * @return bool True if both styles equal each other
      */
     private function compareStyles($style_name1, $style_name2)
     {
@@ -616,7 +636,7 @@ class OpenDocument
     /**
      * Get array of declared font names
      *
-     * @return array
+     * @return array Array of font nodes
      */
     private function getFonts()
     {
@@ -631,8 +651,10 @@ class OpenDocument
     /**
      * Add new font declaration
      *
-     * @param string $font_name
-     * @param string $font_family optional
+     * @param string $font_name   Name of font
+     * @param string $font_family Name of font family
+     *
+     * @return void
      */
     public function addFont($font_name, $font_family = '')
     {
@@ -648,12 +670,12 @@ class OpenDocument
     }
     
     /**
-     * Compare two DOMNode nodes
+     * Compare two DOMNode nodes and check if they are equal
      *
-     * @param mixed $node1
-     * @param mixed $node2
+     * @param mixed $node1 First DOM node
+     * @param mixed $node2 Second DOM node
      *
-     * @return bool
+     * @return bool True if both are equal
      */
     function compareNodes($node1, $node2)
     {
@@ -663,7 +685,7 @@ class OpenDocument
         $attributes = $node1->attributes;
         if ($attributes->length == $node2->attributes->length) {
             for ($i = 0; $i < $attributes->length; $i ++) {
-                $name = $attributes->item($i)->name;
+                $name  = $attributes->item($i)->name;
                 $value = $attributes->item($i)->value;
                 if (!$node2->hasAttribute($name) || $node2->getAttribute($name) != $value) {
                     return false;
@@ -676,9 +698,9 @@ class OpenDocument
         $children = $node1->childNodes;
         if ($children->length == $node2->childNodes->length) {
             for ($i = 0; $i < $children->length; $i ++) {
-                $node = $children->item($i);
+                $node    = $children->item($i);
                 $matches = $this->getChildrenByName($node2, $node->nodeName);
-                $test = false;
+                $test    = false;
                 foreach ($matches as $match) {
                     if ($this->compareNodes($node, $match)) {
                         $test = true;
@@ -699,8 +721,8 @@ class OpenDocument
     /**
      * Compare DOMNode children
      *
-     * @param DOMNode $node1
-     * @param DOMNode $node2
+     * @param DOMNode $node1 First DOM node
+     * @param DOMNode $node2 Second DOM node
      *
      * @return bool True if they are equal
      */
@@ -709,9 +731,9 @@ class OpenDocument
         $children = $node1->childNodes;
         if ($children->length == $node2->childNodes->length) {
             for ($i = 0; $i < $children->length; $i ++) {
-                $node = $children->item($i);
+                $node    = $children->item($i);
                 $matches = $this->getChildrenByName($node2, $node->nodeName);
-                $test = false;
+                $test    = false;
                 foreach ($matches as $match) {
                     if ($this->compareNodes($node, $match)) {
                         $test = true;
@@ -732,8 +754,9 @@ class OpenDocument
     /**
      * Get DOMNode children by name
      *
-     * @param DOMNode $node
-     * @param string $name
+     * @param DOMNode $node Parent node
+     * @param string  $name Name of children tags
+     *
      * @return array
      */
     private function getChildrenByName(DOMNode $node, $name)
@@ -749,7 +772,10 @@ class OpenDocument
     
     /**
      * Test function
+     *
      * @todo remove or finish function
+     *
+     * @return void
      */
     public function output()
     {
@@ -767,9 +793,13 @@ class OpenDocument
     }
     
     /**
-     * Save changes in document or save as a new document / under another name
+     * Save changes in document or save as a new document
+     * or under another name.
      *
-     * @param string $filename optional
+     * @param string $filename Name to save document as
+     *
+     * @return void
+     *
      * @throws OpenDocument_Exception
      */
     public function save($filename = '')
@@ -820,9 +850,10 @@ class OpenDocument
      * Should be used for debugging and internal development purposes
      * only - e.g. unit testing.
      *
-     * @param string $type DOM to fetch: styles, manifest, settings, content, meta
+     * @param string $type DOM to fetch: styles, manifest, settings,
+     *                                   content, meta
      *
-     * @return DOMDocument
+     * @return DOMDocument Desired DOM document
      *
      * @throws OpenDocument_Exception If the type is unknown.
      */
@@ -842,9 +873,10 @@ class OpenDocument
      * Should be used for debugging and internal development purposes
      * only - e.g. unit testing.
      *
-     * @param string $type XPath to fetch: styles, manifest, settings, content, meta
+     * @param string $type XPath to fetch: styles, manifest, settings,
+     *                     content, meta
      *
-     * @return DOMXath
+     * @return DOMXPath Desired xpath object
      *
      * @throws OpenDocument_Exception If the type is unknown.
      */
