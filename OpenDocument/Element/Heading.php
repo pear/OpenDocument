@@ -107,10 +107,10 @@ class OpenDocument_Element_Heading extends OpenDocument_StyledElement
     {
         if ($object instanceof OpenDocument) {
             $document = $object;
-            $node = $object->cursor;
+            $node     = $object->cursor;
         } else if ($object instanceof OpenDocument_Element) {
             $document = $object->getDocument();
-            $node = $object->getNode();
+            $node     = $object->getNode();
         } else {
             throw new OpenDocument_Exception(OpenDocument_Exception::ELEM_OR_DOC_EXPECTED);
         }
@@ -157,7 +157,8 @@ class OpenDocument_Element_Heading extends OpenDocument_StyledElement
     /**
      * Get element properties
      *
-     * @param string  $name
+     * @param string $name Name of property to retrieve
+     *
      * @return mixed
      */
     public function __get($name)

@@ -19,6 +19,8 @@ class OpenDocument_ZipWrapper
         $zip = new ZipArchive;
         if (file_exists($archive)) {
             $zip->open(realpath($archive));
+        } else if ($archive{0} == '/') {
+            $zip->open($archive, ZipArchive::CREATE);
         } else {
             $zip->open(getcwd() . '/' .  $archive, ZipArchive::CREATE);
         }

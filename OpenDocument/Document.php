@@ -27,6 +27,7 @@
 * @since    File available since Release 0.1.0
 */
 
+require_once 'OpenDocument/ZipWrapper.php';
 require_once 'OpenDocument/Exception.php';
 require_once 'OpenDocument/Element/Text.php';
 require_once 'OpenDocument/Element/Span.php';
@@ -352,10 +353,10 @@ class OpenDocument
             foreach ($childrenNodes as $child) {
                 switch ($child->nodeName) {
                 case 'text:p':
-                    $element = new OpenDocument_Paragraph($child, $this);
+                    $element = new OpenDocument_Element_Paragraph($child, $this);
                     break;
                 case 'text:h':
-                    $element = new OpenDocument_Heading($child, $this);
+                    $element = new OpenDocument_Element_Heading($child, $this);
                     break;
                 default:
                     $element = false;
