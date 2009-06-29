@@ -27,7 +27,7 @@
 * @since    File available since Release 0.1.0
 */
 
-require_once 'OpenDocument/ZipWrapper.php';
+require_once 'OpenDocument/Storage/Zip.php';
 require_once 'OpenDocument/Exception.php';
 require_once 'OpenDocument/Element/Text.php';
 require_once 'OpenDocument/Element/Span.php';
@@ -50,13 +50,6 @@ require_once 'OpenDocument/Element/Hyperlink.php';
 class OpenDocument
 {
     /**
-     * Path to opened OpenDocument file
-     *
-     * @var string
-     */
-    private $path;
-    
-    /**
      * DOMNode of content node
      *
      * @var DOMNode
@@ -77,21 +70,6 @@ class OpenDocument
      */
     private $fonts;
     
-    /**
-     * Plain text MIME type of document
-     *
-     * @var string
-     */
-    private $mimetype;
-    
-    /**
-     * Flag indicates whether it is a new file.
-     * When false, the current file is overwritten.
-     *
-     * @var bool
-     */
-    private $create = false;
-
     /**
      * DOM document for content
      *
@@ -149,55 +127,18 @@ class OpenDocument
     private $stylesXPath;
 
     /**
-     * DOMDocument for manifest
+     * Storage driver object
      *
-     * @var DOMDocument
+     * @var OpenDocument_Storage
      */
-    private $manifestDOM;
+    private $storage = null;
 
-    /**
-     * DOMXPath for manifest
-     *
-     * @var DOMXPath
-     */
-    private $manifestXPath;
-            
     /**
      * Collection of children objects
      *
      * @var ArrayIterator
      */
     private $children;
-
-    /**
-     * File with document contents
-     */
-    const FILE_CONTENT = 'content.xml';
-    
-    /**
-     * File with meta information
-     */
-    const FILE_META = 'meta.xml';
-    
-    /**
-     * File with editor settings
-     */
-    const FILE_SETTINGS = 'settings.xml';
-    
-    /**
-     * File with document styles
-     */
-    const FILE_STYLES = 'styles.xml';
-    
-    /**
-     * File with mime type
-     */
-    const FILE_MIMETYPE = 'mimetype';
-    
-    /**
-     * File with manifest information
-     */
-    const FILE_MANIFEST = 'META-INF/manifest.xml';
 
     /**
      * Manifest namespace
@@ -241,63 +182,52 @@ class OpenDocument
      *
      * @param string $filename Specify a file name if you want to open
      *                         an existing file. To create new document
-     *                         pass nothing or an empty string.
+     *                         pass nothing or null.
      *
      * @throws OpenDocument_Exception
      */
-    public function __construct($filename = '')
+    public function __construct($filename = null)
     {
+        $this->open($filename);
+    }
+
+
+
+    /**
+     * Open the given file
+     *
+     * @param string $filename File to open. When null, a new file
+     *                         is being created.
+     *
+     * @return void
+     *
+     * @throw OpenDocument_Exception
+     */
+    public function open($filename = null)
+    {
+        $storage       = new OpenDocument_Storage_Zip();
+        $this->storage = $storage;
+
         if (!strlen($filename)) {
-            //FIXME
-            $filename = dirname(__FILE__) . '/data/templates/default.odt';
-            $this->create = true;
+            $storage->create('text');
+        } else {
+            $storage->open($filename);
         }
         
-        if (!is_readable($filename)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::ACCESS_FILE_ERR);
-        }
-        $this->path = $filename;
+        $this->mimetype = 'application/vnd.oasis.opendocument.text';
 
-        //get mimetype
-        if (!$this->mimetype = OpenDocument_ZipWrapper::read($filename, self::FILE_MIMETYPE)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_MIMETYPE_ERR);
-        }
-
-        //get content
-        $this->contentDOM = new DOMDocument();
-        if (!$this->contentDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_CONTENT))) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_CONTENT_ERR);
-        }
+        $this->contentDOM   = $storage->getContentDom();
         $this->contentXPath = new DOMXPath($this->contentDOM);
 
-        //get meta data
-        $this->metaDOM = new DOMDocument();
-        if (!$this->metaDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_META))) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_META_ERR);
-        }
+        $this->metaDOM   = $storage->getMetaDom();
         $this->metaXPath = new DOMXPath($this->metaDOM);
 
-        //get settings
-        $this->settingsDOM = new DOMDocument();
-        if (!$this->settingsDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_SETTINGS))) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_SETTINGS_ERR);
-        }
+        $this->settingsDOM   = $storage->getSettingsDom();
         $this->settingsXPath = new DOMXPath($this->settingsDOM);
 
-        //get styles
-        $this->stylesDOM = new DOMDocument();
-        if (!$this->stylesDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_STYLES))) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_STYLES_ERR);
-        }
+        $this->stylesDOM   = $storage->getStylesDom();
         $this->stylesXPath = new DOMXPath($this->stylesDOM);
 
-        //get manifest information
-        $this->manifestDOM = new DOMDocument();
-        if (!$this->manifestDOM->loadXML(OpenDocument_ZipWrapper::read($filename, self::FILE_MANIFEST))) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::LOAD_MANIFEST_ERR);
-        }
-        $this->manifestXPath = new DOMXPath($this->manifestDOM);
-        
         //set cursor
         $this->cursor = $this->contentXPath->query(
             '/office:document-content/office:body/office:text'
@@ -797,51 +727,22 @@ class OpenDocument
      * Save changes in document or save as a new document
      * or under another name.
      *
-     * @param string $filename Name to save document as
+     * @param string $filename Name to save document as. If no name
+     *                         given, the name that was used to open
+     *                         the file is used.
      *
      * @return void
      *
      * @throws OpenDocument_Exception
      */
-    public function save($filename = '')
+    public function save($filename = null)
     {
-        if (strlen($filename)) {
-            $this->path = $filename;
-        }
-        //write mimetype
-        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_MIMETYPE, $this->mimetype)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_MIMETYPE_ERR);
-        }
-
-        //write content
-        $xml = str_replace("'", '&apos;', $this->contentDOM->saveXML());
-        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_CONTENT, $xml)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_CONTENT_ERR);
-        }
-
-        //write meta
-        $xml = str_replace("'", '&apos;', $this->metaDOM->saveXML());
-        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_META, $xml)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_META_ERR);
-        }
-
-        //write settings
-        $xml = str_replace("'", '&apos;', $this->settingsDOM->saveXML());
-        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_SETTINGS, $xml)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_SETTINGS_ERR);
-        }
-
-        //write styles
-        $xml = str_replace("'", '&apos;', $this->stylesDOM->saveXML());
-        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_STYLES, $xml)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_STYLES_ERR);
-        }
-
-        //write manifest
-        $xml = str_replace("'", '&apos;', $this->manifestDOM->saveXML());
-        if (!OpenDocument_ZipWrapper::write($this->path, self::FILE_MANIFEST, $xml)) {
-            throw new OpenDocument_Exception(OpenDocument_Exception::WRITE_MANIFEST_ERR);
-        }
+        $storage = $this->storage;
+        $storage->setContentDom($this->contentDOM);
+        $storage->setMetaDom($this->metaDOM);
+        $storage->setSettingsDom($this->settingsDOM);
+        $storage->setStylesDom($this->stylesDOM);
+        $storage->save($filename);
     }
 
 
