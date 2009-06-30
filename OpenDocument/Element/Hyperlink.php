@@ -18,26 +18,25 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 require_once 'OpenDocument/StyledElement.php';
 
 /**
-* OpenDocument hyperlink element
+* Hyperlink element
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
 */
 class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
 {
@@ -100,8 +99,8 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
     /**
      * Constructor
      *
-     * @param DOMNode      $node
-     * @param OpenDocument $document
+     * @param DOMNode      $node     Node to add heading to
+     * @param OpenDocument $document Document to add heading to
      */
     public function __construct(DOMNode $node, OpenDocument $document)
     {
@@ -122,14 +121,15 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
      * @param mixed  $object   Document or element to append link to
      * @param mixed  $content  (Text) content of hyperlink
      * @param string $location Hyperlink URL
-     * @param string $type     optional
-     * @param string $target   optional 
-     * @param string $name     optional
+     * @param string $type     'simple'
+     * @param string $target   Name of target frame 
+     * @param string $name     Name (id) of link
      *
      * @return OpenDocument_Element_Hyperlink
      */
-    public static function instance($object, $content, $location, $type = 'simple', $target = '', $name = '')
-    {
+    public static function instance(
+        $object, $content, $location, $type = 'simple', $target = '', $name = ''
+    ) {
         if ($object instanceof OpenDocument) {
             $document = $object;
             $node = $object->cursor;
@@ -137,7 +137,9 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
             $document = $object->getDocument();
             $node = $object->getNode();
         } else {
-            throw new Exception('Object must be OpenDocument or OpenDocument_Element');
+            throw new OpenDocument_Exception(
+                'Object must be OpenDocument or OpenDocument_Element'
+            );
         }
         
         $element = new OpenDocument_Element_Hyperlink(
@@ -163,8 +165,8 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
     /**
      * Set element property
      *
-     * @param string $name
-     * @param mixed $value
+     * @param string $name  Name of property to set
+     * @param mixed  $value Value to set
      *
      * @return void
      */
@@ -184,7 +186,9 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
             break;
         case 'target':
             $this->target = $value;
-            $this->node->setAttributeNS(OpenDocument::NS_OFFICE, 'target-frame-name', $value);
+            $this->node->setAttributeNS(
+                OpenDocument::NS_OFFICE, 'target-frame-name', $value
+            );
             break;
         case 'name':
             $this->name = $value;
@@ -197,8 +201,9 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
     /**
      * Get element property
      *
-     * @param string $name
-     * @return mixed
+     * @param string $name Name of property
+     *
+     * @return mixed Property value
      */
     public function __get($name)
     {
@@ -213,11 +218,11 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
     /**
      * Generate element new style name
      *
-     * @return string
+     * @return string New style name
      */
     public function generateStyleName()
     {
-        self::$styleNameMaxNumber ++;
+        self::$styleNameMaxNumber++;
         return self::styleNamePrefix . self::$styleNameMaxNumber;
     }
 
@@ -238,7 +243,7 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
     /**
      * Create a span element
      *
-     * @param string $text
+     * @param string $text Text contents for span element
      *
      * @return OpenDocument_Element_Span
      */

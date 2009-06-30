@@ -18,26 +18,25 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 require_once 'OpenDocument/StyledElement.php';
 
 /**
-* OpenDocument_Span element
+* Span element
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
 */
 class OpenDocument_Element_Span extends OpenDocument_StyledElement
 {
@@ -87,7 +86,9 @@ class OpenDocument_Element_Span extends OpenDocument_StyledElement
             $document = $object->getDocument();
             $node = $object->getNode();
         } else {
-            throw new OpenDocument_Exception(OpenDocument_Exception::ELEM_OR_DOC_EXPECTED);
+            throw new OpenDocument_Exception(
+                OpenDocument_Exception::ELEM_OR_DOC_EXPECTED
+            );
         }
         
         $element = new OpenDocument_Element_Span(
@@ -108,11 +109,11 @@ class OpenDocument_Element_Span extends OpenDocument_StyledElement
     /**
      * Generate new style name
      *
-     * @return string $stylename
+     * @return string Name of new style
      */
     public function generateStyleName()
     {
-        self::$styleNameMaxNumber ++;
+        self::$styleNameMaxNumber++;
         return self::styleNamePrefix . self::$styleNameMaxNumber;
     }
 
@@ -121,7 +122,7 @@ class OpenDocument_Element_Span extends OpenDocument_StyledElement
     /**
      * Create a text element
      *
-     * @param string $text
+     * @param string $text Text content
      *
      * @return OpenDocument_Element_Text
      */

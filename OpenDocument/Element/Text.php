@@ -18,29 +18,26 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 require_once 'OpenDocument/Element.php';
 
 /**
-* OpenDocument_Element_Text class
-* 
-* Represents text in OpenDocument
+* Plain text element
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 class OpenDocument_Element_Text extends OpenDocument_Element
 {
@@ -54,8 +51,8 @@ class OpenDocument_Element_Text extends OpenDocument_Element
     /**
      * Constructor
      *
-     * @param DOMNode $node
-     * @param OpenDocument $document
+     * @param DOMNode      $node     Node to add heading to
+     * @param OpenDocument $document Document to add heading to
      */
     public function __construct(DOMNode $node, OpenDocument $document)
     {
@@ -80,7 +77,9 @@ class OpenDocument_Element_Text extends OpenDocument_Element
             $document = $object->getDocument();
             $node = $object->getNode();
         } else {
-            throw new Exception('Object must be OpenDocument or OpenDocument_Element');
+            throw new OpenDocument_Exception(
+                'Object must be OpenDocument or OpenDocument_Element'
+            );
         }
         $element = new OpenDocument_Element_Text(
             $node->ownerDocument->createTextNode($text), $document
@@ -91,11 +90,10 @@ class OpenDocument_Element_Text extends OpenDocument_Element
     }
     
     /**
-     * Magic method
-     * Set property value
+     * Magic method: Set property value
      *
-     * @param string $name
-     * @param mixed $value
+     * @param string $name  Name of property to set
+     * @param mixed  $value Value for property ('text')
      *
      * @return void
      */
@@ -104,17 +102,17 @@ class OpenDocument_Element_Text extends OpenDocument_Element
         switch ($name) {
         case 'text':
             $this->text = $value;
-            $this->setText($value);
+            $this->_setText($value);
             break;
         default:
         }
     }
     
     /**
-     * Magic method
-     * Get property value
+     * Magic method: Get property value
      *
-     * @param string $name
+     * @param string $name Name of property to retrieve
+     *
      * @return mixed
      */
     public function __get($name)
@@ -127,9 +125,11 @@ class OpenDocument_Element_Text extends OpenDocument_Element
     /**
      * Set element text
      *
-     * @param string $text
+     * @param string $text Plain text to set
+     *
+     * @return void
      */
-    private function setText($text)
+    private function _setText($text)
     {
         $node = $this->node->ownerDocument->createTextNode($text);
         $this->node->parentNode->replaceChild($node, $this->node);

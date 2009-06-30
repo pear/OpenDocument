@@ -1,6 +1,6 @@
 <?php
 /**
-* PEAR OpenDocument package.
+* PEAR OpenDocument package
 * 
 * PHP version 5
 *
@@ -18,13 +18,13 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 require_once 'OpenDocument/StyledElement.php';
@@ -32,13 +32,12 @@ require_once 'OpenDocument/StyledElement.php';
 /**
 * Paragraph element
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 class OpenDocument_Element_Paragraph extends OpenDocument_StyledElement
 {
@@ -74,8 +73,8 @@ class OpenDocument_Element_Paragraph extends OpenDocument_StyledElement
     /**
      * Constructor
      *
-     * @param DOMNode      $node
-     * @param OpenDocument $document
+     * @param DOMNode      $node     Node to add heading to
+     * @param OpenDocument $document Document to add heading to
      */
     public function __construct(DOMNode $node, OpenDocument $document)
     {
@@ -106,7 +105,9 @@ class OpenDocument_Element_Paragraph extends OpenDocument_StyledElement
             $document = $object->getDocument();
             $node = $object->getNode();
         } else {
-            throw new OpenDocument_Exception(OpenDocument_Exception::ELEM_OR_DOC_EXPECTED);
+            throw new OpenDocument_Exception(
+                OpenDocument_Exception::ELEM_OR_DOC_EXPECTED
+            );
         }
         
         $element = new OpenDocument_Element_Paragraph(
@@ -151,11 +152,11 @@ class OpenDocument_Element_Paragraph extends OpenDocument_StyledElement
     /**
      * Create a hyperlink
      *
-     * @param string $text
-     * @param string $location
-     * @param string $type     optional
-     * @param string $target   optional
-     * @param string $name     optional
+     * @param string $text     Content text for link
+     * @param string $location URL
+     * @param string $type     'simple'
+     * @param string $target   Target frame
+     * @param string $name     Name (id) of link
      *
      * @return OpenDocument_Element_Hyperlink
      */
