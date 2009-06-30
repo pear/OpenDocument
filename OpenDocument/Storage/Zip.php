@@ -301,11 +301,12 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         }
         //as soon as ZipArchive exposes compression options,
         // FIXME this and make it uncompressed
-        $zip->addFromString(
-            'mimetype',
-            $this->getMimeTypeFromContent($this->contentDom)
-        );
+        $mimetype = $this->getMimeTypeFromContent($this->contentDom);
+        $zip->addFromString('mimetype', $mimetype);
+
         $manifest = new OpenDocument_Manifest();
+        $manifest->addMimeType($mimetype);
+
         $manifest->addFile('content.xml', 'text/xml');
         $zip->addFromString('content.xml', $this->contentDom->saveXML());
 

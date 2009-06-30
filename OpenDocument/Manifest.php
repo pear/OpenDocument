@@ -16,7 +16,7 @@
 require_once 'OpenDocument.php';
 
 /**
- * ZIP Manifest file
+ * OpenDocument manifest file for ZIPs.
  *
  * @category File_Formats
  * @package  OpenDocument
@@ -94,6 +94,39 @@ class OpenDocument_Manifest
             OpenDocument::NS_MANIFEST,
             'manifest:media-type',
             $mimetype
+        );
+        $this->fileroot->appendChild($entry);
+    }
+
+
+
+    /**
+     * Add mime type entry to manifest
+     *
+     * @param string $mimetype MIME type of the file
+     *
+     * @return void
+     */
+    public function addMimeType($mimetype)
+    {
+        $entry = $this->dom->createElementNS(
+            OpenDocument::NS_MANIFEST,
+            'manifest:file-entry'
+        );
+        $entry->setAttributeNS(
+            OpenDocument::NS_MANIFEST,
+            'manifest:full-path',
+            '/'
+        );
+        $entry->setAttributeNS(
+            OpenDocument::NS_MANIFEST,
+            'manifest:media-type',
+            $mimetype
+        );
+        $entry->setAttributeNS(
+            OpenDocument::NS_MANIFEST,
+            'manifest:version',
+            '1.2'
         );
         $this->fileroot->appendChild($entry);
     }
