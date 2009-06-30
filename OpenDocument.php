@@ -54,91 +54,91 @@ class OpenDocument
      *
      * @var DOMNode
      */
-    private $cursor;
+    private $_cursor;
     
     /**
      * DOMNode with style information
      *
      * @var DOMNode
      */
-    private $styles;
+    private $_styles;
     
     /**
      * DOMNode with fonts declarations
      *
      * @var DOMNode
      */
-    private $fonts;
+    private $_fonts;
     
     /**
      * DOM document for content
      *
      * @var DOMDocument
      */
-    private $contentDOM;
+    private $_contentDOM;
 
     /**
      * DOMXPath object for content
      *
      * @var DOMXPath
      */
-    private $contentXPath;
+    private $_contentXPath;
 
     /**
      * DOMDocument for meta information
      *
      * @var DOMDocument
      */
-    private $metaDOM;
+    private $_metaDOM;
 
     /**
      * DOMXPath for meta information
      *
      * @var DOMXPath
      */
-    private $metaXPath;
+    private $_metaXPath;
 
     /**
      * DOMDocument for settings
      *
      * @var DOMDocument
      */
-    private $settingsDOM;
+    private $_settingsDOM;
 
     /**
      * DOMXPath for settings
      *
      * @var DOMXPath
      */
-    private $settingsXPath;
+    private $_settingsXPath;
 
     /**
      * DOMDocument for styles
      *
      * @var DOMDocument
      */
-    private $stylesDOM;
+    private $_stylesDOM;
 
     /**
      * DOMXPath for styles
      *
      * @var DOMXPath
      */
-    private $stylesXPath;
+    private $_stylesXPath;
 
     /**
      * Storage driver object
      *
      * @var OpenDocument_Storage
      */
-    private $storage = null;
+    private $_storage = null;
 
     /**
      * Collection of children objects
      *
      * @var ArrayIterator
      */
-    private $children;
+    private $_children;
 
     /**
      * Manifest namespace
@@ -205,8 +205,8 @@ class OpenDocument
      */
     public function open($filename = null)
     {
-        $storage       = new OpenDocument_Storage_Zip();
-        $this->storage = $storage;
+        $storage        = new OpenDocument_Storage_Zip();
+        $this->_storage = $storage;
 
         if (!strlen($filename)) {
             $storage->create('text');
@@ -214,34 +214,34 @@ class OpenDocument
             $storage->open($filename);
         }
         
-        $this->mimetype = 'application/vnd.oasis.opendocument.text';
+        $this->_mimetype = 'application/vnd.oasis.opendocument.text';
 
-        $this->contentDOM   = $storage->getContentDom();
-        $this->contentXPath = new DOMXPath($this->contentDOM);
+        $this->_contentDOM   = $storage->getContentDom();
+        $this->_contentXPath = new DOMXPath($this->_contentDOM);
 
-        $this->metaDOM   = $storage->getMetaDom();
-        $this->metaXPath = new DOMXPath($this->metaDOM);
+        $this->_metaDOM   = $storage->getMetaDom();
+        $this->_metaXPath = new DOMXPath($this->_metaDOM);
 
-        $this->settingsDOM   = $storage->getSettingsDom();
-        $this->settingsXPath = new DOMXPath($this->settingsDOM);
+        $this->_settingsDOM   = $storage->getSettingsDom();
+        $this->_settingsXPath = new DOMXPath($this->_settingsDOM);
 
-        $this->stylesDOM   = $storage->getStylesDom();
-        $this->stylesXPath = new DOMXPath($this->stylesDOM);
+        $this->_stylesDOM   = $storage->getStylesDom();
+        $this->_stylesXPath = new DOMXPath($this->_stylesDOM);
 
         //set cursor
-        $this->cursor = $this->contentXPath->query(
+        $this->_cursor = $this->_contentXPath->query(
             '/office:document-content/office:body/office:text'
         )->item(0);
-        $this->styles = $this->contentXPath->query(
+        $this->_styles = $this->_contentXPath->query(
             '/office:document-content/office:automatic-styles'
         )->item(0);
-        $this->fonts  = $this->contentXPath->query(
+        $this->_fonts  = $this->_contentXPath->query(
             '/office:document-content/office:font-face-decls'
         )->item(0);
-        $this->contentXPath->registerNamespace('text', self::NS_TEXT);
+        $this->_contentXPath->registerNamespace('text', self::NS_TEXT);
         
-        $this->listChildren();
-        $this->setMax();
+        $this->_listChildren();
+        $this->_setMax();
     }
 
     /**
@@ -255,7 +255,7 @@ class OpenDocument
     {
         switch ($name) {
         case 'cursor':
-            return $this->cursor;
+            return $this->_cursor;
         default:
         }
     }
@@ -267,19 +267,19 @@ class OpenDocument
      */
     public function getChildren()
     {
-        return $this->children->getIterator();
+        return $this->_children->getIterator();
     }
     
     /**
-     * Fills $this->children with all DOMNodes
+     * Fills $this->_children with all DOMNodes
      *
      * @return void
      */
-    private function listChildren()
+    private function _listChildren()
     {
-        $this->children = new ArrayObject;
-        if ($this->cursor instanceof DOMNode) {
-            $childrenNodes = $this->cursor->childNodes;
+        $this->_children = new ArrayObject;
+        if ($this->_cursor instanceof DOMNode) {
+            $childrenNodes = $this->_cursor->childNodes;
             foreach ($childrenNodes as $child) {
                 switch ($child->nodeName) {
                 case 'text:p':
@@ -292,7 +292,7 @@ class OpenDocument
                     $element = false;
                 }
                 if ($element) {
-                    $this->children->append($element);
+                    $this->_children->append($element);
                 }
             }
         }
@@ -302,13 +302,13 @@ class OpenDocument
     /**
      * Delete document child element
      *
-     * @param OpenDocument_Element $element
+     * @param OpenDocument_Element $element Element to remove
      *
      * @return void
      */
     public function deleteElement(OpenDocument_Element $element)
     {
-        $this->cursor->removeChild($element->getNode());
+        $this->_cursor->removeChild($element->getNode());
         unset($element);
     }
     
@@ -317,7 +317,7 @@ class OpenDocument
      *
      * @return void
      */
-    private function setMax()
+    private function _setMax()
     {
         $classes = array(
             'OpenDocument_Element_Paragraph',
@@ -325,8 +325,8 @@ class OpenDocument
             'OpenDocument_Element_Hyperlink'
         );
         $max = array();
-        if ($this->cursor instanceof DOMNode) {
-            $nodes = $this->cursor->getElementsByTagName('*');
+        if ($this->_cursor instanceof DOMNode) {
+            $nodes = $this->_cursor->getElementsByTagName('*');
             foreach ($nodes as $node) {
                 if ($node->hasAttributeNS(self::NS_TEXT, 'style-name')) {
                     $style_name = $node->getAttributeNS(self::NS_TEXT, 'style-name');
@@ -381,7 +381,7 @@ class OpenDocument
     /**
      * Create a bookmark
      *
-     * @param string $name
+     * @param string $name Readable name of the bookmark
      * @param string $type 'start' or 'end'
      *
      * @return OpenDocument_Element_Bookmark
@@ -394,10 +394,10 @@ class OpenDocument
             $type = 'start';
         }
         $bookmark = new OpenDocument_Element_Bookmark(
-            $this->contentDOM->createElementNS(self::NS_TEXT, 'bookmark-' . $type),
+            $this->_contentDOM->createElementNS(self::NS_TEXT, 'bookmark-' . $type),
             $this, $name, $type
         );
-        $this->cursor->appendChild($bookmark->getNode());
+        $this->_cursor->appendChild($bookmark->getNode());
         $bookmark->getNode()->setAttributeNS(self::NS_TEXT, 'name', $name);
         return $bookmark;
     }
@@ -416,16 +416,18 @@ class OpenDocument
      * Otherwise leave old style info or just add new style description
      *
      * @param string                     $style_name Name of style to apply
-     * @param string                     $name       
-     * @param mixed                      $value
-     * @param OpenDocument_StyledElement $object
+     * @param string                     $name       Name of property to set
+     *                                               (e.g. 'fo:font-weight')
+     * @param mixed                      $value      Value of property
+     * @param OpenDocument_StyledElement $object     Object to apply style to
      *
      * @return string Name of style that has been applied
      */
-    public function applyStyle($style_name, $name, $value, OpenDocument_StyledElement $object)
-    {
+    public function applyStyle(
+        $style_name, $name, $value, OpenDocument_StyledElement $object
+    ) {
         //check if other nodes have the same style name
-        $nodes = $this->cursor->getElementsByTagName('*');
+        $nodes = $this->_cursor->getElementsByTagName('*');
         $count = 0;
         foreach ($nodes as $node) {
             if ($node->hasAttributeNS(self::NS_TEXT, 'style-name')
@@ -442,8 +444,8 @@ class OpenDocument
 
         //get style node
         if ($count > 1) {
-            $style = $this->getStyleNode($style_name)->cloneNode(true);
-            $this->styles->appendChild($style);
+            $style = $this->_getStyleNode($style_name)->cloneNode(true);
+            $this->_styles->appendChild($style);
             $generate = true;
             $style_name = uniqid('tmp');//$object->generateStyleName();
             $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
@@ -460,7 +462,7 @@ class OpenDocument
                 $generate = true;
                 $style_name = uniqid('tmp');
             }
-            $style = $this->contentDOM->createElementNS(self::NS_STYLE, 'style');
+            $style = $this->_contentDOM->createElementNS(self::NS_STYLE, 'style');
             $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
             //workaround for php5_2
             $style->setAttributeNS(
@@ -468,14 +470,14 @@ class OpenDocument
                 constant(get_class($object) . '::styleFamily')
             );
             $style->setAttributeNS(self::NS_STYLE, 'parent-style-name', 'Standard');
-            $this->styles->appendChild($style);
+            $this->_styles->appendChild($style);
         }
 
         $nodes = $style->getElementsByTagNameNS(self::NS_STYLE, 'text-properties');
         if ($nodes->length) {
             $text_properties = $nodes->item(0);
         } else {
-            $text_properties = $this->contentDOM->createElementNS(
+            $text_properties = $this->_contentDOM->createElementNS(
                 self::NS_STYLE, 'text-properties'
             );
             $style->appendChild($text_properties);
@@ -483,11 +485,13 @@ class OpenDocument
         $text_properties->setAttribute($name, $value);
 
         //find alike style
-        $nodes = $this->styles->getElementsByTagNameNS(
+        $nodes = $this->_styles->getElementsByTagNameNS(
             self::NS_STYLE, 'style'
         );
         foreach ($nodes as $node) {
-            if (!$style->isSameNode($node) && $this->compareChildNodes($style, $node)) {
+            if (!$style->isSameNode($node)
+                && $this->_compareChildNodes($style, $node)
+            ) {
                 $style->parentNode->removeChild($style);
                 return $node->getAttributeNS(self::NS_STYLE, 'name');
             }
@@ -537,7 +541,7 @@ class OpenDocument
      */
     protected function getStyleNode($style_name)
     {
-        $nodes = $this->styles->getElementsByTagNameNS(self::NS_STYLE, 'style');
+        $nodes = $this->_styles->getElementsByTagNameNS(self::NS_STYLE, 'style');
         foreach ($nodes as $node) {
             $node->getAttributeNS(self::NS_STYLE, 'name');
             if ($node->getAttributeNS(self::NS_STYLE, 'name') == $style_name) {
@@ -555,7 +559,7 @@ class OpenDocument
      *
      * @return bool True if both styles equal each other
      */
-    private function compareStyles($style_name1, $style_name2)
+    private function _compareStyles($style_name1, $style_name2)
     {
         $style_node1 = $this->getStyleNode($style_name1);
         $style_node2 = $this->getStyleNode($style_name2);
@@ -569,9 +573,9 @@ class OpenDocument
      *
      * @return array Array of font nodes
      */
-    private function getFonts()
+    private function _getFonts()
     {
-        $nodes = $this->fonts->getElementsByTagNameNS(self::NS_STYLE, 'font-face');
+        $nodes = $this->_fonts->getElementsByTagNameNS(self::NS_STYLE, 'font-face');
         $fonts = array();
         foreach ($nodes as $node) {
             $fonts[] = $node->getAttributeNS(self::NS_STYLE, 'name');
@@ -589,9 +593,9 @@ class OpenDocument
      */
     public function addFont($font_name, $font_family = '')
     {
-        if (!in_array($font_name, $this->getFonts())) {
-            $node = $this->contentDOM->createElementNS(self::NS_STYLE, 'font-face');
-            $this->fonts->appendChild($node);
+        if (!in_array($font_name, $this->_getFonts())) {
+            $node = $this->_contentDOM->createElementNS(self::NS_STYLE, 'font-face');
+            $this->_fonts->appendChild($node);
             $node->setAttributeNS(self::NS_STYLE, 'name', $font_name);
             if (!strlen($font_family)) {
                 $font_family = $font_name;
@@ -618,7 +622,9 @@ class OpenDocument
             for ($i = 0; $i < $attributes->length; $i ++) {
                 $name  = $attributes->item($i)->name;
                 $value = $attributes->item($i)->value;
-                if (!$node2->hasAttribute($name) || $node2->getAttribute($name) != $value) {
+                if (!$node2->hasAttribute($name)
+                    || $node2->getAttribute($name) != $value
+                ) {
                     return false;
                 }
             }
@@ -657,13 +663,13 @@ class OpenDocument
      *
      * @return bool True if they are equal
      */
-    private function compareChildNodes(DOMNode $node1, DOMNode $node2)
+    private function _compareChildNodes(DOMNode $node1, DOMNode $node2)
     {
         $children = $node1->childNodes;
         if ($children->length == $node2->childNodes->length) {
             for ($i = 0; $i < $children->length; $i ++) {
                 $node    = $children->item($i);
-                $matches = $this->getChildrenByName($node2, $node->nodeName);
+                $matches = $this->_getChildrenByName($node2, $node->nodeName);
                 $test    = false;
                 foreach ($matches as $match) {
                     if ($this->compareNodes($node, $match)) {
@@ -690,7 +696,7 @@ class OpenDocument
      *
      * @return array
      */
-    private function getChildrenByName(DOMNode $node, $name)
+    private function _getChildrenByName(DOMNode $node, $name)
     {
         $nodes = array();
         foreach ($node->childNodes as $node) {
@@ -710,7 +716,7 @@ class OpenDocument
      */
     public function output()
     {
-        $list = $this->contentXPath->query(
+        $list = $this->_contentXPath->query(
             '/office:document-content/office:font-face-decls/style:font-face'
         );
         echo $list->length;
@@ -720,7 +726,7 @@ class OpenDocument
                 echo $attribute->name . '=' . $attribute->value;
             }
         }
-        echo $this->contentDOM->saveXML();
+        echo $this->_contentDOM->saveXML();
     }
     
     /**
@@ -737,11 +743,11 @@ class OpenDocument
      */
     public function save($filename = null)
     {
-        $storage = $this->storage;
-        $storage->setContentDom($this->contentDOM);
-        $storage->setMetaDom($this->metaDOM);
-        $storage->setSettingsDom($this->settingsDOM);
-        $storage->setStylesDom($this->stylesDOM);
+        $storage = $this->_storage;
+        $storage->setContentDom($this->_contentDOM);
+        $storage->setMetaDom($this->_metaDOM);
+        $storage->setSettingsDom($this->_settingsDOM);
+        $storage->setStylesDom($this->_stylesDOM);
         $storage->save($filename);
     }
 
@@ -761,7 +767,7 @@ class OpenDocument
      */
     public function getDOM($type)
     {
-        $variable = $type . 'DOM';
+        $variable = '_' . $type . 'DOM';
         if (isset($this->$variable)) {
             return $this->$variable;
         }
@@ -784,7 +790,7 @@ class OpenDocument
      */
     public function getXPath($type)
     {
-        $variable = $type . 'XPath';
+        $variable = '_' . $type . 'XPath';
         if (isset($this->$variable)) {
             return $this->$variable;
         }

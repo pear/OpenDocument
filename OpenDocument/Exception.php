@@ -1,9 +1,7 @@
 <?php
 /**
-* OpenDocument_Exception class
+* PEAR OpenDocument package
 * 
-* OpenDocument_Exception class extends PEAR_Exception
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -20,29 +18,25 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
 */
 
 require_once 'PEAR/Exception.php';
 
 /**
-* OpenDocument_Exception class
+* Generic exception class for the package
 *
-* OpenDocument_Exception class extends PEAR_Exception
-*
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 class OpenDocument_Exception extends PEAR_Exception
 {
