@@ -132,21 +132,22 @@ abstract class OpenDocument_Element
     protected function listChildren()
     {
         $this->children = new ArrayObject;
-        if ($this->node instanceof DOMNode) {
-            $childrenNodes = $this->node->childNodes;
-            foreach ($childrenNodes as $child) {
-                if ($child instanceof DOMText) {
-                    $element = new OpenDocument_TextElement($child, $this->document);
-                    $this->children->append($element);
-                } else {
-                    foreach ($this->allowedElements as $class) {
-                        $ReflectionClass = new ReflectionClass($class);
-                        $tag = $ReflectionClass->getConstant('nodePrefix') . ':' . $ReflectionClass->getConstant('nodeName');
-                        if ($child->nodeName == $tag) {
-                            $element = new $class($child, $this->document);
-                            $this->children->append($element);
-                            break;
-                        }
+        if (!$this->node instanceof DOMNode) {
+            return;
+        }
+        $childrenNodes = $this->node->childNodes;
+        foreach ($childrenNodes as $child) {
+            if ($child instanceof DOMText) {
+                $element = new OpenDocument_Element_Text($child, $this->document);
+                $this->children->append($element);
+            } else {
+                foreach ($this->allowedElements as $class) {
+                    $ReflectionClass = new ReflectionClass($class);
+                    $tag = $ReflectionClass->getConstant('nodePrefix') . ':' . $ReflectionClass->getConstant('nodeName');
+                    if ($child->nodeName == $tag) {
+                        $element = new $class($child, $this->document);
+                        $this->children->append($element);
+                        break;
                     }
                 }
             }

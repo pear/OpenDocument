@@ -81,8 +81,8 @@ class OpenDocument_Element_Paragraph extends OpenDocument_StyledElement
         parent::__construct($node, $document);
         
         $this->allowedElements = array(
-            'OpenDocument_Span',
-            'OpenDocument_Hyperlink',
+            'OpenDocument_Element_Span',
+            'OpenDocument_Element_Hyperlink',
         );
     }
 

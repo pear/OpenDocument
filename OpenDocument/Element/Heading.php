@@ -88,8 +88,8 @@ class OpenDocument_Element_Heading extends OpenDocument_StyledElement
         $this->level = $node->getAttributeNS(OpenDocument::NS_TEXT, 'outline-level');
         
         $this->allowedElements = array(
-            'OpenDocument_Span',
-            'OpenDocument_Hyperlink',
+            'OpenDocument_Element_Span',
+            'OpenDocument_Element_Hyperlink',
         );
     }
     

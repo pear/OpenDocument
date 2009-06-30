@@ -2,7 +2,7 @@
 require_once 'OpenDocument.php'; // open document class
 
 //create a new OpenDocument Text file
-$odt = new OpenDocument;
+$odt = OpenDocument::text();
 //add heading
 $h = $odt->createHeading('Heading', 1);
 //create paragraph
@@ -14,6 +14,7 @@ $p1->style->color = '#009900';
 $p1->style->underlineStyle = 'dotted';
 $p1->style->underlineColor = '#009999';
 $p1->style->underlineWidth = '2pt';
+
 //create second paragraph
 $p2 = $odt->createParagraph('Paragraph 2');
 //copy styles from first one
@@ -32,8 +33,9 @@ $h->createTextElement(' ');
 $a2 = $h->createHyperlink('Ya.ru', 'http://ya.ru');
 //apply underline color to link
 $a2->style->underlineColor = '#990000';
+
 //save as test.odt
 $odt->save('test.odt');
 
-echo 'saved as test.odt';
+echo "saved as test.odt\n";
 ?>
