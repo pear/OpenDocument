@@ -1,9 +1,7 @@
 <?php
 /**
-* OpenDocument base class
+* PEAR OpenDocument package
 * 
-* OpenDocument class handles reading and modifying files in OpenDocument format
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -20,13 +18,13 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 require_once 'OpenDocument.php';
@@ -34,18 +32,19 @@ require_once 'OpenDocument.php';
 /**
 * OpenDocument Text debug class
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @link       http://pear.php.net/package/OpenDocument
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
 */
 class OpenDocument_Debug_Text extends OpenDocument
 {
     /**
      * Get style node
      *
-     * @param string $style_name
+     * @param string $style_name Name of style to retrieve
+     *
      * @return DOMNode
      */
     public function getStyleNode($style_name)

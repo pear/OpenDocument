@@ -1,9 +1,7 @@
 <?php
 /**
-* OpenDocument_ElementStyle class
+* PEAR OpenDocument package
 * 
-* OpenDocument_ElementStyle concretes element style object
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -20,13 +18,13 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 require_once 'OpenDocument/Style.php';
@@ -36,13 +34,12 @@ require_once 'OpenDocument/Style.php';
 * 
 * OpenDocument_ElementStyle concretes element style object
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 class OpenDocument_ElementStyle extends OpenDocument_Style
 {
@@ -60,6 +57,7 @@ class OpenDocument_ElementStyle extends OpenDocument_Style
     /**
      * List of properties
      *
+     * @var string
      */
     protected
             $fontWeight,
@@ -76,21 +74,21 @@ class OpenDocument_ElementStyle extends OpenDocument_Style
     /**
      * Constructor
      *
-     * @param OpenDocument_StyledElement $element
+     * @param OpenDocument_StyledElement $element Element to create style for
      */
     public function __construct($element)
     {
         $this->map = array(
-            'fontWeight' => 'fo:font-weight',
-            'fontStyle' => 'fo:font-style',
-            'fontName' => 'style:font-name',
-            'fontSize' => 'fo:font-size',
+            'fontWeight'      => 'fo:font-weight',
+            'fontStyle'       => 'fo:font-style',
+            'fontName'        => 'style:font-name',
+            'fontSize'        => 'fo:font-size',
             'backgroundColor' => 'fo:background-color',
-            'color' => 'fo:color',
-            'lineHeight' => 'style:line-height',
-            'underlineStyle' => 'style:text-underline-style',
-            'underlineWidth' => 'style:text-underline-width',
-            'underlineColor' => 'style:text-underline-color',
+            'color'           => 'fo:color',
+            'lineHeight'      => 'style:line-height',
+            'underlineStyle'  => 'style:text-underline-style',
+            'underlineWidth'  => 'style:text-underline-width',
+            'underlineColor'  => 'style:text-underline-color',
         );
         parent::__construct($element);
     }
@@ -98,8 +96,10 @@ class OpenDocument_ElementStyle extends OpenDocument_Style
     /**
      * Set style value
      *
-     * @param string $name
-     * @param mixed $value
+     * @param string $name  Name of property to set
+     * @param mixed  $value Value to set property to
+     *
+     * @return void
      */
     public function __set($name, $value)
     {
