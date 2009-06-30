@@ -102,7 +102,7 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
      * @param DOMNode      $node     Node to add heading to
      * @param OpenDocument $document Document to add heading to
      */
-    public function __construct(DOMNode $node, OpenDocument $document)
+    public function __construct(DOMNode $node, OpenDocument_Document $document)
     {
         parent::__construct($node, $document);
         $this->location = $node->getAttributeNS(OpenDocument::NS_XLINK, 'href');
@@ -130,7 +130,7 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
     public static function instance(
         $object, $content, $location, $type = 'simple', $target = '', $name = ''
     ) {
-        if ($object instanceof OpenDocument) {
+        if ($object instanceof OpenDocument_Document) {
             $document = $object;
             $node = $object->cursor;
         } else if ($object instanceof OpenDocument_Element) {
@@ -138,7 +138,8 @@ class OpenDocument_Element_Hyperlink extends OpenDocument_StyledElement
             $node = $object->getNode();
         } else {
             throw new OpenDocument_Exception(
-                'Object must be OpenDocument or OpenDocument_Element'
+                'Object must be OpenDocument_Document or OpenDocument_Element',
+                OpenDocument_Exception::ELEM_OR_DOC_EXPECTED
             );
         }
         

@@ -82,7 +82,7 @@ class OpenDocument_Element_Heading extends OpenDocument_StyledElement
      * @param DOMNode      $node     Node to add heading to
      * @param OpenDocument $document Document to add heading to
      */
-    public function __construct(DOMNode $node, OpenDocument $document)
+    public function __construct(DOMNode $node, OpenDocument_Document $document)
     {
         parent::__construct($node, $document);
         $this->level = $node->getAttributeNS(OpenDocument::NS_TEXT, 'outline-level');
@@ -104,7 +104,7 @@ class OpenDocument_Element_Heading extends OpenDocument_StyledElement
      */
     public static function instance($object, $content, $level = 1)
     {
-        if ($object instanceof OpenDocument) {
+        if ($object instanceof OpenDocument_Document) {
             $document = $object;
             $node     = $object->cursor;
         } else if ($object instanceof OpenDocument_Element) {
@@ -112,6 +112,7 @@ class OpenDocument_Element_Heading extends OpenDocument_StyledElement
             $node     = $object->getNode();
         } else {
             throw new OpenDocument_Exception(
+                'OpenDocument_Element or OpenDocument_Document expected',
                 OpenDocument_Exception::ELEM_OR_DOC_EXPECTED
             );
         }

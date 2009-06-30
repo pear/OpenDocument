@@ -27,7 +27,8 @@
 * @since    File available since Release 0.1.0
 */
 
-require_once 'OpenDocument.php';
+require_once 'OpenDocument/Document/Text.php';
+require_once 'OpenDocument/Storage/Zip.php';
 
 /**
 * OpenDocument Text debug class
@@ -38,8 +39,17 @@ require_once 'OpenDocument.php';
 * @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
 * @link     http://pear.php.net/package/OpenDocument
 */
-class OpenDocument_Debug_Text extends OpenDocument
+class OpenDocument_Debug_Text extends OpenDocument_Document_Text
 {
+    public function __construct()
+    {
+        $storage = new  OpenDocument_Storage_Zip();
+        $storage->create('text');
+        parent::__construct($storage);
+    }
+
+
+
     /**
      * Get style node
      *
@@ -50,7 +60,6 @@ class OpenDocument_Debug_Text extends OpenDocument
     public function getStyleNode($style_name)
     {
         return parent::getStyleNode($style_name);
-
     }
 }
 ?>

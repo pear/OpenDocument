@@ -51,10 +51,10 @@ class OpenDocument_Element_Text extends OpenDocument_Element
     /**
      * Constructor
      *
-     * @param DOMNode      $node     Node to add heading to
-     * @param OpenDocument $document Document to add heading to
+     * @param DOMNode               $node     Node to add heading to
+     * @param OpenDocument_Document $document Document to add heading to
      */
-    public function __construct(DOMNode $node, OpenDocument $document)
+    public function __construct(DOMNode $node, OpenDocument_Document $document)
     {
         parent::__construct($node, $document);
         $this->text = $node->wholeText;
@@ -70,7 +70,7 @@ class OpenDocument_Element_Text extends OpenDocument_Element
      */
     public static function instance($object, $text)
     {
-        if ($object instanceof OpenDocument) {
+        if ($object instanceof OpenDocument_Document) {
             $document = $object;
             $node = $object->cursor;
         } else if ($object instanceof OpenDocument_Element) {

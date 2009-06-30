@@ -79,7 +79,7 @@ class OpenDocument_Element_Span extends OpenDocument_StyledElement
      */
     public static function instance($object, $content)
     {
-        if ($object instanceof OpenDocument) {
+        if ($object instanceof OpenDocument_Document) {
             $document = $object;
             $node = $object->cursor;
         } else if ($object instanceof OpenDocument_Element) {

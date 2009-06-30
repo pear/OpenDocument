@@ -79,11 +79,11 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Constructor
      *
-     * @param DOMNode      $node     DOM node to create element for
-     * @param OpenDocument $document OpenDocument object the element is
-     *                               being created for
+     * @param DOMNode               $node     DOM node to create element for
+     * @param OpenDocument_Document $document Document object the element is
+     *                                        being created for
      */
-    public function __construct(DOMNode $node, OpenDocument $document)
+    public function __construct(DOMNode $node, OpenDocument_Document $document)
     {
         parent::__construct($node, $document);
         $this->style = new OpenDocument_ElementStyle($this);
