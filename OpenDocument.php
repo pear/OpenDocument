@@ -20,8 +20,8 @@
 * 
 * @category File_Formats
 * @package  OpenDocument
-* @author   Alexander Pak <irokez@gmail.com>
-* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @author   Christian Weiske <cweiske@php.net>
+* @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
 * @version  CVS: $Id$
 * @link     http://pear.php.net/package/OpenDocument
 * @since    File available since Release 0.1.0
@@ -29,117 +29,23 @@
 
 require_once 'OpenDocument/Storage/Zip.php';
 require_once 'OpenDocument/Exception.php';
-require_once 'OpenDocument/Element/Text.php';
-require_once 'OpenDocument/Element/Span.php';
-require_once 'OpenDocument/Element/Paragraph.php';
-require_once 'OpenDocument/Element/Heading.php';
-require_once 'OpenDocument/Element/Bookmark.php';
-require_once 'OpenDocument/Element/Hyperlink.php';
 
 /**
-* OpenDocument base class
+* Base class containing methods to open and create documents.
+* It contains namespace definitions as well.
 *
-* OpenDocument class handles reading and modifying files in OpenDocument format
+* This class is not to be extendet or derived from. Its only purpose is
+* to server as hub to create document objects, and to keep commonly used
+* constants.
 *
 * @category File_Formats
 * @package  OpenDocument
-* @author   Alexander Pak <irokez@gmail.com>
+* @author   Christian Weiske <cweiske@php.net>
 * @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
 * @link     http://pear.php.net/package/OpenDocument
 */
-class OpenDocument
+abstract class OpenDocument
 {
-    /**
-     * DOMNode of content node
-     *
-     * @var DOMNode
-     */
-    private $_cursor;
-    
-    /**
-     * DOMNode with style information
-     *
-     * @var DOMNode
-     */
-    private $_styles;
-    
-    /**
-     * DOMNode with fonts declarations
-     *
-     * @var DOMNode
-     */
-    private $_fonts;
-    
-    /**
-     * DOM document for content
-     *
-     * @var DOMDocument
-     */
-    private $_contentDOM;
-
-    /**
-     * DOMXPath object for content
-     *
-     * @var DOMXPath
-     */
-    private $_contentXPath;
-
-    /**
-     * DOMDocument for meta information
-     *
-     * @var DOMDocument
-     */
-    private $_metaDOM;
-
-    /**
-     * DOMXPath for meta information
-     *
-     * @var DOMXPath
-     */
-    private $_metaXPath;
-
-    /**
-     * DOMDocument for settings
-     *
-     * @var DOMDocument
-     */
-    private $_settingsDOM;
-
-    /**
-     * DOMXPath for settings
-     *
-     * @var DOMXPath
-     */
-    private $_settingsXPath;
-
-    /**
-     * DOMDocument for styles
-     *
-     * @var DOMDocument
-     */
-    private $_stylesDOM;
-
-    /**
-     * DOMXPath for styles
-     *
-     * @var DOMXPath
-     */
-    private $_stylesXPath;
-
-    /**
-     * Storage driver object
-     *
-     * @var OpenDocument_Storage
-     */
-    private $_storage = null;
-
-    /**
-     * Collection of children objects
-     *
-     * @var ArrayIterator
-     */
-    private $_children;
-
     /**
      * Manifest namespace
      */
@@ -175,20 +81,32 @@ class OpenDocument
      */
     const NS_XLINK = 'http://www.w3.org/1999/xlink';
 
+    /**
+     * Array of supported document types.
+     *
+     * @var array
+     *
+     * @usedby create()
+     */
+    public static $documenttypes = array(
+        'text',
+        'spreadsheet',
+        'presentation',
+        'drawing',
+        'image',
+        'chart',
+    );
+
 
 
     /**
-     * Constructor
+     * This class cannot be instantiated.
+     * To create documents, use text(), spreadsheet() or the other
+     * static methods.
      *
-     * @param string $filename Specify a file name if you want to open
-     *                         an existing file. To create new document
-     *                         pass nothing or null.
-     *
-     * @throws OpenDocument_Exception
      */
-    public function __construct($filename = null)
+    private function __construct()
     {
-        $this->open($filename);
     }
 
 
@@ -196,605 +114,231 @@ class OpenDocument
     /**
      * Open the given file
      *
-     * @param string $filename File to open. When null, a new file
-     *                         is being created.
+     * @param string $file Name (path) of file to open
      *
-     * @return void
+     * @return OpenDocument_Document A document object
      *
      * @throw OpenDocument_Exception
      */
-    public function open($filename = null)
+    public static function open($file)
     {
-        $storage        = new OpenDocument_Storage_Zip();
-        $this->_storage = $storage;
+        //FIXME: detect correct storage
+        $storage = new OpenDocument_Storage_Zip();
+        $storage->open($file);
 
-        if (!strlen($filename)) {
-            $storage->create('text');
-        } else {
-            $storage->open($filename);
-        }
-        
-        $this->_mimetype = 'application/vnd.oasis.opendocument.text';
+        $mimetype = $storage->getMimeType();
 
-        $this->_contentDOM   = $storage->getContentDom();
-        $this->_contentXPath = new DOMXPath($this->_contentDOM);
-
-        $this->_metaDOM   = $storage->getMetaDom();
-        $this->_metaXPath = new DOMXPath($this->_metaDOM);
-
-        $this->_settingsDOM   = $storage->getSettingsDom();
-        $this->_settingsXPath = new DOMXPath($this->_settingsDOM);
-
-        $this->_stylesDOM   = $storage->getStylesDom();
-        $this->_stylesXPath = new DOMXPath($this->_stylesDOM);
-
-        //set cursor
-        $this->_cursor = $this->_contentXPath->query(
-            '/office:document-content/office:body/office:text'
-        )->item(0);
-        $this->_styles = $this->_contentXPath->query(
-            '/office:document-content/office:automatic-styles'
-        )->item(0);
-        $this->_fonts  = $this->_contentXPath->query(
-            '/office:document-content/office:font-face-decls'
-        )->item(0);
-        $this->_contentXPath->registerNamespace('text', self::NS_TEXT);
-        
-        $this->_listChildren();
-        $this->_setMax();
-    }
-
-    /**
-     * Provide read only access to cursor private variable
-     *
-     * @param string $name Variable to read
-     *
-     * @return mixed Variable contents
-     */
-    public function __get($name)
-    {
-        switch ($name) {
-        case 'cursor':
-            return $this->_cursor;
+        switch ($mimetype) {
+        case 'application/vnd.oasis.opendocument.text':
+            $class = 'OpenDocument_Document_Text';
+            break;
         default:
-        }
-    }
-    
-    /**
-     * Get children list
-     *
-     * @return ArrayIterator
-     */
-    public function getChildren()
-    {
-        return $this->_children->getIterator();
-    }
-    
-    /**
-     * Fills $this->_children with all DOMNodes
-     *
-     * @return void
-     */
-    private function _listChildren()
-    {
-        $this->_children = new ArrayObject;
-        if ($this->_cursor instanceof DOMNode) {
-            $childrenNodes = $this->_cursor->childNodes;
-            foreach ($childrenNodes as $child) {
-                switch ($child->nodeName) {
-                case 'text:p':
-                    $element = new OpenDocument_Element_Paragraph($child, $this);
-                    break;
-                case 'text:h':
-                    $element = new OpenDocument_Element_Heading($child, $this);
-                    break;
-                default:
-                    $element = false;
-                }
-                if ($element) {
-                    $this->_children->append($element);
-                }
-            }
-        }
-    }
-    
-    
-    /**
-     * Delete document child element
-     *
-     * @param OpenDocument_Element $element Element to remove
-     *
-     * @return void
-     */
-    public function deleteElement(OpenDocument_Element $element)
-    {
-        $this->_cursor->removeChild($element->getNode());
-        unset($element);
-    }
-    
-    /**
-     * Set maximum values of style name suffixes
-     *
-     * @return void
-     */
-    private function _setMax()
-    {
-        $classes = array(
-            'OpenDocument_Element_Paragraph',
-            'OpenDocument_Element_Heading',
-            'OpenDocument_Element_Hyperlink'
-        );
-        $max = array();
-        if ($this->_cursor instanceof DOMNode) {
-            $nodes = $this->_cursor->getElementsByTagName('*');
-            foreach ($nodes as $node) {
-                if ($node->hasAttributeNS(self::NS_TEXT, 'style-name')) {
-                    $style_name = $node->getAttributeNS(self::NS_TEXT, 'style-name');
-                    foreach ($classes as $class) {
-                        $reflection = new ReflectionClass($class);
-                        $prefix = $reflection->getConstant('styleNamePrefix');
-                        if (preg_match("/^$prefix(\d)+$/", $style_name, $m)) {
-                            $max[$class] = isset($max[$class])
-                                ? ($max[$class] < $m[1] ? $m[1]
-                                : $max[$class]) : $m[1];
-                        }
-                    }
-                }
-            }
-        }
-        foreach ($classes as $class) {
-            $method = new ReflectionMethod($class, 'setStyleNameMaxNumber');
-            if (!isset($max[$class])) {
-                $max[$class] = 0;
-            }
-            $method->invoke(null, $max[$class]);
-        }
-    }
-
-    /************************* Elements **************************/
-    
-    /**
-     * Create paragraph
-     *
-     * @param string $text Content of paragraph
-     *
-     * @return OpenDocument_Element_Paragraph
-     */
-    public function createParagraph($text = '')
-    {
-        return OpenDocument_Element_Paragraph::instance($this, $text);
-    }
-    
-    /**
-     * Create heading
-     *
-     * @param string  $text  Contents of heading
-     * @param integer $level Level 1-6 (1 highest)
-     *
-     * @return OpenDocument_Heading
-     */
-    public function createHeading($text = '', $level = 1)
-    {
-        return OpenDocument_Element_Heading::instance($this, $text, $level);
-    }
-
-    /**
-     * Create a bookmark
-     *
-     * @param string $name Readable name of the bookmark
-     * @param string $type 'start' or 'end'
-     *
-     * @return OpenDocument_Element_Bookmark
-     *
-     * @todo finish method
-     */
-    public function createBookmark($name, $type = 'start')
-    {
-        if (!in_array($type, array('start', 'end'))) {
-            $type = 'start';
-        }
-        $bookmark = new OpenDocument_Element_Bookmark(
-            $this->_contentDOM->createElementNS(self::NS_TEXT, 'bookmark-' . $type),
-            $this, $name, $type
-        );
-        $this->_cursor->appendChild($bookmark->getNode());
-        $bookmark->getNode()->setAttributeNS(self::NS_TEXT, 'name', $name);
-        return $bookmark;
-    }
-
-    
-    /********************* Styles ****************************/   
-    
-    /**
-     * Apply style information to object.
-     *
-     * If object has no style information yet, then create new
-     * style node. If object style information is similar to other
-     * object's style info, then apply the same style name.
-     * And if object old style information was not shared with other
-     * objects then delete old style info.
-     * Otherwise leave old style info or just add new style description
-     *
-     * @param string                     $style_name Name of style to apply
-     * @param string                     $name       Name of property to set
-     *                                               (e.g. 'fo:font-weight')
-     * @param mixed                      $value      Value of property
-     * @param OpenDocument_StyledElement $object     Object to apply style to
-     *
-     * @return string Name of style that has been applied
-     */
-    public function applyStyle(
-        $style_name, $name, $value, OpenDocument_StyledElement $object
-    ) {
-        //check if other nodes have the same style name
-        $nodes = $this->_cursor->getElementsByTagName('*');
-        $count = 0;
-        foreach ($nodes as $node) {
-            if ($node->hasAttributeNS(self::NS_TEXT, 'style-name')
-                && $node->getAttributeNS(self::NS_TEXT, 'style-name') == $style_name
-            ) {
-                $count ++;
-                if ($count > 1) {
-                    break;
-                }
-            }
-        }
-
-        $generate = false;
-
-        //get style node
-        if ($count > 1) {
-            $style = $this->_getStyleNode($style_name)->cloneNode(true);
-            $this->_styles->appendChild($style);
-            $generate = true;
-            $style_name = uniqid('tmp');//$object->generateStyleName();
-            $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
-            $style->setAttributeNS(
-                self::NS_STYLE, 'family',
-                constant(get_class($object) . '::styleFamily')
+            throw new OpenDocument_Exception(
+                'Unsupported MIME type ' . $mimetype
             );
-        } else {
-            $style = $this->getStyleNode($style_name);
+            break;
         }
 
-        if (empty($style)) {
-            if (empty($style_name)) {
-                $generate = true;
-                $style_name = uniqid('tmp');
-            }
-            $style = $this->_contentDOM->createElementNS(self::NS_STYLE, 'style');
-            $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
-            //workaround for php5_2
-            $style->setAttributeNS(
-                self::NS_STYLE, 'family',
-                constant(get_class($object) . '::styleFamily')
+        self::includeClassFile($class);
+
+        return new $class($storage);
+    }//public static function open($file)
+
+
+
+    /**
+     * Creates and returns a new OpenDocument document object.
+     *
+     * @param string $type    Type of document to create: 'text', 'spreadsheet',
+     *                        'drawing', 'chart', 'image', 'presentation'
+     * @param string $file    Name of the file to be saved as
+     * @param mixed  $storage Storage class or object to use. Object need to
+     *                        implement OpenDocument_Storage
+     *
+     * @return OpenDocument_Document Document object
+     *
+     * @throws OpenDocument_Exception In case the type is unsupported, or
+     *                                the document or storage class cannot
+     *                                be loaded
+     *
+     * @see text()
+     * @see spreadsheet()
+     * @see presentation()
+     * @see drawing()
+     * @see chart()
+     * @see image()
+     *
+     * @uses $documenttypes
+     * @uses includeClassFile
+     */
+    public static function create($type, $file = null, $storage = null)
+    {
+        if (!in_array($type, self::$documenttypes)) {
+            throw new OpenDocument_Exception(
+                'Unsupported document type ' . $type
             );
-            $style->setAttributeNS(self::NS_STYLE, 'parent-style-name', 'Standard');
-            $this->_styles->appendChild($style);
         }
+        $class = 'OpenDocument_Document_' . ucfirst($type);
+        self::includeClassFile($class);
 
-        $nodes = $style->getElementsByTagNameNS(self::NS_STYLE, 'text-properties');
-        if ($nodes->length) {
-            $text_properties = $nodes->item(0);
-        } else {
-            $text_properties = $this->_contentDOM->createElementNS(
-                self::NS_STYLE, 'text-properties'
+        if ($storage === null) {
+            $storage = 'OpenDocument_Storage_Zip';
+        }
+        if (is_string($storage)) {
+            self::includeClassFile($storage);
+            $storage = new $storage();
+            $storage->create($type, $file);
+        } else if (!$storage instanceof OpenDocument_Storage) {
+            throw new OpenDocument_Exception(
+                'Storage must implement OpenDocument_Storage interface'
             );
-            $style->appendChild($text_properties);
         }
-        $text_properties->setAttribute($name, $value);
 
-        //find alike style
-        $nodes = $this->_styles->getElementsByTagNameNS(
-            self::NS_STYLE, 'style'
+        return new $class($storage);
+    }//public static function create(..)
+
+
+
+    /**
+     * Includes the correct class for the given file
+     *
+     * @param string $class Class name to load file for
+     *
+     * @return void
+     *
+     * @throws OpenDocument_Exception When the class cannot be loaded
+     */
+    protected function includeClassFile($class)
+    {
+        $file = str_replace('_', '/', $class) . '.php';
+        include_once $file;
+        if (!class_exists($class)) {
+            throw new OpenDocument_Exception(
+                'Class could not be loaded: ' . $class
+            );
+        }
+    }//protected function includeClassFile(..)
+
+
+
+    /**
+     * Creates and returns a new text document.
+     *
+     * @param string $file    Name of file that will be saved
+     * @param mixed  $storage Storage class or object to use
+     *
+     * @return OpenDocument_Document_Text
+     *
+     * @see create()
+     */
+    public static function text($file = null, $storage = null)
+    {
+        return self::create('text', $file, $storage);
+    }
+
+
+
+    /**
+     * Creates and returns a new spreadsheet document.
+     * NOT IMPLEMENTED YET
+     *
+     * @param string $file    Name of file that will be saved
+     * @param mixed  $storage Storage class or object to use
+     *
+     * @return OpenDocument_Document_Spreadsheet
+     *
+     * @see create()
+     */
+    public static function spreadsheet($file = null, $storage = null)
+    {
+        //FIXME
+        throw new OpenDocument_Exception(
+            'Spreadsheet functionality not implemented yet'
         );
-        foreach ($nodes as $node) {
-            if (!$style->isSameNode($node)
-                && $this->_compareChildNodes($style, $node)
-            ) {
-                $style->parentNode->removeChild($style);
-                return $node->getAttributeNS(self::NS_STYLE, 'name');
-            }
-        }
-        
-        if ($generate) {
-            $style_name = $object->generateStyleName();
-            $style->setAttributeNS(self::NS_STYLE, 'name', $style_name);
-        }
-        return $style->getAttributeNS(self::NS_STYLE, 'name');
     }
 
+
+
     /**
-     * Get array of style values
+     * Creates and returns a new drawing document.
+     * NOT IMPLEMENTED YET
      *
-     * @param string $style_name Name of style to retrieve properties from
-     * @param array  $properties Array of namespace-prefixed properties to
-     *                           retrieve
+     * @param string $file    Name of file that will be saved
+     * @param mixed  $storage Storage class or object to use
      *
-     * @return array Key-value array of properties and their values
+     * @return OpenDocument_Document_Drawing
+     *
+     * @see create()
      */
-    public function getStyle($style_name, array $properties)
+    public static function drawing($file = null, $storage = null)
     {
-        $style = array();
-        if ($node = $this->getStyleNode($style_name)) {
-            $nodes = $node->getElementsByTagNameNS(
-                self::NS_STYLE, 'text-properties'
-            );
-            if ($nodes->length) {
-                $text_properties = $nodes->item(0);
-                foreach ($properties as $property) {
-                    list($prefix, $name) = explode(':', $property);
-                    $ns = $text_properties->lookupNamespaceURI($prefix);
-                    $style[$property] = $text_properties->getAttributeNS($ns, $name);
-                }
-            }
-        }
-        return $style;
-    }
-    
-    /**
-     * Get style node
-     *
-     * @param string $style_name Name of style
-     *
-     * @return DOMNode Style node
-     */
-    protected function getStyleNode($style_name)
-    {
-        $nodes = $this->_styles->getElementsByTagNameNS(self::NS_STYLE, 'style');
-        foreach ($nodes as $node) {
-            $node->getAttributeNS(self::NS_STYLE, 'name');
-            if ($node->getAttributeNS(self::NS_STYLE, 'name') == $style_name) {
-                return $node;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Check if two style info are similar
-     *
-     * @param string $style_name1 Name of first style
-     * @param string $style_name2 Name of second style
-     *
-     * @return bool True if both styles equal each other
-     */
-    private function _compareStyles($style_name1, $style_name2)
-    {
-        $style_node1 = $this->getStyleNode($style_name1);
-        $style_node2 = $this->getStyleNode($style_name2);
-        return $this->compareNodes($style_node1, $style_node2);
-    }
-    
-    /********************* Fonts ****************************/
-    
-    /**
-     * Get array of declared font names
-     *
-     * @return array Array of font nodes
-     */
-    private function _getFonts()
-    {
-        $nodes = $this->_fonts->getElementsByTagNameNS(self::NS_STYLE, 'font-face');
-        $fonts = array();
-        foreach ($nodes as $node) {
-            $fonts[] = $node->getAttributeNS(self::NS_STYLE, 'name');
-        }
-        return $fonts;
-    }
-    
-    /**
-     * Add new font declaration
-     *
-     * @param string $font_name   Name of font
-     * @param string $font_family Name of font family
-     *
-     * @return void
-     */
-    public function addFont($font_name, $font_family = '')
-    {
-        if (!in_array($font_name, $this->_getFonts())) {
-            $node = $this->_contentDOM->createElementNS(self::NS_STYLE, 'font-face');
-            $this->_fonts->appendChild($node);
-            $node->setAttributeNS(self::NS_STYLE, 'name', $font_name);
-            if (!strlen($font_family)) {
-                $font_family = $font_name;
-            }
-            $node->setAttributeNS(self::NS_SVG, 'font-family', $font_family);
-        }
-    }
-    
-    /**
-     * Compare two DOMNode nodes and check if they are equal
-     *
-     * @param mixed $node1 First DOM node
-     * @param mixed $node2 Second DOM node
-     *
-     * @return bool True if both are equal
-     */
-    function compareNodes($node1, $node2)
-    {
-        if (!($node1 instanceof DOMNode) || !($node2 instanceof DOMNode)) {
-            return false;
-        }
-        $attributes = $node1->attributes;
-        if ($attributes->length == $node2->attributes->length) {
-            for ($i = 0; $i < $attributes->length; $i ++) {
-                $name  = $attributes->item($i)->name;
-                $value = $attributes->item($i)->value;
-                if (!$node2->hasAttribute($name)
-                    || $node2->getAttribute($name) != $value
-                ) {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
-        
-        $children = $node1->childNodes;
-        if ($children->length == $node2->childNodes->length) {
-            for ($i = 0; $i < $children->length; $i ++) {
-                $node    = $children->item($i);
-                $matches = $this->getChildrenByName($node2, $node->nodeName);
-                $test    = false;
-                foreach ($matches as $match) {
-                    if ($this->compareNodes($node, $match)) {
-                        $test = true;
-                        break;
-                    }
-                }
-                if (!$test) {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Compare DOMNode children
-     *
-     * @param DOMNode $node1 First DOM node
-     * @param DOMNode $node2 Second DOM node
-     *
-     * @return bool True if they are equal
-     */
-    private function _compareChildNodes(DOMNode $node1, DOMNode $node2)
-    {
-        $children = $node1->childNodes;
-        if ($children->length == $node2->childNodes->length) {
-            for ($i = 0; $i < $children->length; $i ++) {
-                $node    = $children->item($i);
-                $matches = $this->_getChildrenByName($node2, $node->nodeName);
-                $test    = false;
-                foreach ($matches as $match) {
-                    if ($this->compareNodes($node, $match)) {
-                        $test = true;
-                        break;
-                    }
-                }
-                if (!$test) {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Get DOMNode children by name
-     *
-     * @param DOMNode $node Parent node
-     * @param string  $name Name of children tags
-     *
-     * @return array
-     */
-    private function _getChildrenByName(DOMNode $node, $name)
-    {
-        $nodes = array();
-        foreach ($node->childNodes as $node) {
-            if ($node->nodeName == $name) {
-                array_push($nodes, $node);
-            }
-        }
-        return $nodes;
-    }
-    
-    /**
-     * Test function
-     *
-     * @todo remove or finish function
-     *
-     * @return void
-     */
-    public function output()
-    {
-        $list = $this->_contentXPath->query(
-            '/office:document-content/office:font-face-decls/style:font-face'
+        //FIXME
+        throw new OpenDocument_Exception(
+            'Drawing functionality not implemented yet'
         );
-        echo $list->length;
-        foreach ($list as $node) {
-            echo '<br />';
-            foreach ($node->attributes as $attribute) {
-                echo $attribute->name . '=' . $attribute->value;
-            }
-        }
-        echo $this->_contentDOM->saveXML();
-    }
-    
-    /**
-     * Save changes in document or save as a new document
-     * or under another name.
-     *
-     * @param string $filename Name to save document as. If no name
-     *                         given, the name that was used to open
-     *                         the file is used.
-     *
-     * @return void
-     *
-     * @throws OpenDocument_Exception
-     */
-    public function save($filename = null)
-    {
-        $storage = $this->_storage;
-        $storage->setContentDom($this->_contentDOM);
-        $storage->setMetaDom($this->_metaDOM);
-        $storage->setSettingsDom($this->_settingsDOM);
-        $storage->setStylesDom($this->_stylesDOM);
-        $storage->save($filename);
     }
 
 
 
     /**
-     * Returns the internal DOM document of the given type.
-     * Should be used for debugging and internal development purposes
-     * only - e.g. unit testing.
+     * Creates and returns a new presentation document.
+     * NOT IMPLEMENTED YET
      *
-     * @param string $type DOM to fetch: styles, manifest, settings,
-     *                                   content, meta
+     * @param string $file    Name of file that will be saved
+     * @param mixed  $storage Storage class or object to use
      *
-     * @return DOMDocument Desired DOM document
+     * @return OpenDocument_Document_Presentation
      *
-     * @throws OpenDocument_Exception If the type is unknown.
+     * @see create()
      */
-    public function getDOM($type)
+    public static function presentation($file = null, $storage = null)
     {
-        $variable = '_' . $type . 'DOM';
-        if (isset($this->$variable)) {
-            return $this->$variable;
-        }
-        throw new OpenDocument_Exception('No DOM for ' . $type);
+        //FIXME
+        throw new OpenDocument_Exception(
+            'Presentation functionality not implemented yet'
+        );
     }
 
 
 
     /**
-     * Returns the internal XPath object of the given type.
-     * Should be used for debugging and internal development purposes
-     * only - e.g. unit testing.
+     * Creates and returns a new chart document.
+     * NOT IMPLEMENTED YET
      *
-     * @param string $type XPath to fetch: styles, manifest, settings,
-     *                     content, meta
+     * @param string $file    Name of file that will be saved
+     * @param mixed  $storage Storage class or object to use
      *
-     * @return DOMXPath Desired xpath object
+     * @return OpenDocument_Document_Chart
      *
-     * @throws OpenDocument_Exception If the type is unknown.
+     * @see create()
      */
-    public function getXPath($type)
+    public static function chart($file = null, $storage = null)
     {
-        $variable = '_' . $type . 'XPath';
-        if (isset($this->$variable)) {
-            return $this->$variable;
-        }
-        throw new OpenDocument_Exception('No XPath for ' . $type);
+        //FIXME
+        throw new OpenDocument_Exception(
+            'Chart functionality not implemented yet'
+        );
+    }
+
+
+
+    /**
+     * Creates and returns a new image document.
+     * NOT IMPLEMENTED YET
+     *
+     * @param string $file    Name of file that will be saved
+     * @param mixed  $storage Storage class or object to use
+     *
+     * @return OpenDocument_Document_Image
+     *
+     * @see create()
+     */
+    public static function image($file = null, $storage = null)
+    {
+        //FIXME
+        throw new OpenDocument_Exception(
+            'Image functionality not implemented yet'
+        );
     }
 }
 ?>

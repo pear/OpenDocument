@@ -21,14 +21,13 @@
 * @category File_Formats
 * @package  OpenDocument
 * @author   Alexander Pak <irokez@gmail.com>
+* @author   Christian Weiske <cweiske@php.net>
 * @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
 * @version  CVS: $Id$
 * @link     http://pear.php.net/package/OpenDocument
 * @since    File available since Release 0.1.0
 */
 
-require_once 'OpenDocument/Storage/Zip.php';
-require_once 'OpenDocument/Exception.php';
 require_once 'OpenDocument/Element/Text.php';
 require_once 'OpenDocument/Element/Span.php';
 require_once 'OpenDocument/Element/Paragraph.php';
@@ -37,17 +36,16 @@ require_once 'OpenDocument/Element/Bookmark.php';
 require_once 'OpenDocument/Element/Hyperlink.php';
 
 /**
-* OpenDocument base class
-*
-* OpenDocument class handles reading and modifying files in OpenDocument format
+* Base all document classes.
 *
 * @category File_Formats
 * @package  OpenDocument
 * @author   Alexander Pak <irokez@gmail.com>
+* @author   Christian Weiske <cweiske@php.net>
 * @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
 * @link     http://pear.php.net/package/OpenDocument
 */
-class OpenDocument
+class OpenDocument_Document
 {
     /**
      * DOMNode of content node
@@ -139,41 +137,6 @@ class OpenDocument
      * @var ArrayIterator
      */
     private $_children;
-
-    /**
-     * Manifest namespace
-     */
-    const NS_MANIFEST = 'urn:oasis:names:tc:opendocument:xmlns:manifest:1.0';
-
-    /**
-     * text namespace URL
-     */
-    const NS_TEXT = 'urn:oasis:names:tc:opendocument:xmlns:text:1.0';
-    
-    /**
-     * style namespace URL
-     */
-    const NS_STYLE = 'urn:oasis:names:tc:opendocument:xmlns:style:1.0';
-    
-    /**
-     * fo namespace URL
-     */
-    const NS_FO = 'urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0';
-    
-    /**
-     * office namespace URL
-     */
-    const NS_OFFICE = 'urn:oasis:names:tc:opendocument:xmlns:office:1.0';
-    
-    /**
-     * svg namespace URL
-     */
-    const NS_SVG = 'urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0';
-    
-    /**
-     * xlink namespace URL
-     */
-    const NS_XLINK = 'http://www.w3.org/1999/xlink';
 
 
 

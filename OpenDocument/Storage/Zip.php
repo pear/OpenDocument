@@ -219,6 +219,21 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
 
 
     /**
+     * Returns the MIME type of the opened file.
+     *
+     * @return string MIME Type.
+     */
+    public function getMimeType()
+    {
+        //FIXME: implement functionality
+        //load from manifest first
+        //if null, load from content
+        return 'application/vnd.oasis.opendocument.text';
+    }
+
+
+
+    /**
      * Returns the DOM object containing the content.
      *
      * @return DOMDocument
@@ -467,7 +482,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         if ('@data_dir@' == '@' . 'data_dir@') {
             $path = dirname(__FILE__) . '/../../data/templates/' . $file;
         } else {
-            require_once "PEAR/Config.php";
+            include_once "PEAR/Config.php";
             $path = PEAR_Config::singleton()->get('data_dir')
                 . '/OpenDocument/templates/' . $file;
         }

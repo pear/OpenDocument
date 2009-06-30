@@ -69,6 +69,13 @@ interface OpenDocument_Storage
     public function open($file);
 
     /**
+     * Returns the MIME type of the opened file.
+     *
+     * @return string MIME Type.
+     */
+    public function getMimeType();
+
+    /**
      * Returns the Dom object containing the content.
      *
      * @return DOMDocument

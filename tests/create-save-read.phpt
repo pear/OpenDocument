@@ -3,7 +3,7 @@ Test creating, adding content, saving and reading.
 --FILE--
 <?php
 require_once 'OpenDocument.php';
-$doc = new OpenDocument();
+$doc = OpenDocument::text();
 $doc->createHeading('Headline 1', 1);
 $doc->createParagraph('This is a paragraph');
 
@@ -13,7 +13,7 @@ unset($doc);
 
 var_dump(file_exists($name));
 
-$doc      = new OpenDocument($name);
+$doc      = OpenDocument::open($name);
 $children = $doc->getChildren();
 
 $first = reset($children);
