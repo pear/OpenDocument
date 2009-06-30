@@ -1,9 +1,7 @@
 <?php
 /**
-* OpenDocument_StyledElement abstract class
+* PEAR OpenDocument package
 * 
-* OpenDocument_StyledElement absract class - all elements that have styles inherit from this one
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -20,30 +18,26 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
 */
 
 require_once 'OpenDocument/Element.php';
 require_once 'OpenDocument/ElementStyle.php';
 
 /**
-* OpenDocument_StyledElement abstract class
+* Base class for elements with styles
 * 
-* OpenDocument_StyledElement absract class - all elements that have styles inherit from this one
-*
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 abstract class OpenDocument_StyledElement extends OpenDocument_Element
 {
@@ -78,14 +72,16 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Generate new style name
      *
+     * @return string New style name
      */
     abstract public function generateStyleName();
     
     /**
      * Constructor
      *
-     * @param DOMNode $node
-     * @param OpenDocument $document
+     * @param DOMNode      $node     DOM node to create element for
+     * @param OpenDocument $document OpenDocument object the element is
+     *                               being created for
      */
     public function __construct(DOMNode $node, OpenDocument $document)
     {
@@ -94,11 +90,11 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     }
     
     /**
-     * Magic method
-     * Get property value
+     * Magic method: Get a property value.
      *
-     * @param string $name
-     * @return mixed
+     * @param string $name Name of property to retrieve ('style')
+     *
+     * @return mixed Value of property.
      */
     public function __get($name)
     {
@@ -110,8 +106,12 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Get style information
      *
-     * @param array $properties
-     * @return array
+     * @param array $properties Array of namespace-prefixed properties to
+     *                          retrieve.
+     *
+     * @return array Key-value array of properties and their values
+     *
+     * @see OpenDocument::getStyle()
      */
     public function getStyle($properties)
     {
@@ -121,7 +121,7 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Get style name
      *
-     * @return string
+     * @return string Get name of style
      */
     public function getStyleName()
     {
@@ -131,7 +131,7 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Get style name prefix
      *
-     * @return string
+     * @return string Prefix for style name
      */
     public function getStyleNamePrefix()
     {
@@ -151,7 +151,9 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Set style name suxxif max value
      *
-     * @param integer $number
+     * @param integer $number Maxium style number
+     *
+     * @return void
      */
     public static function setStyleNameMaxNumber($number)
     {
@@ -161,14 +163,22 @@ abstract class OpenDocument_StyledElement extends OpenDocument_Element
     /**
      * Apply style information
      *
-     * @param string $name
-     * @param mixed $value
+     * @param string $name  Name of style property ('fo:font-weight')
+     * @param mixed  $value Value for property
+     *
+     * @return void
      */
     public function applyStyle($name, $value)
     {
-        $style_name = $this->node->getAttributeNS(OpenDocument::NS_TEXT, 'style-name');
-        $style_name = $this->document->applyStyle($style_name, $name, $value, $this);
-        $this->node->setAttributeNS(OpenDocument::NS_TEXT, 'style-name', $style_name);
+        $style_name = $this->node->getAttributeNS(
+            OpenDocument::NS_TEXT, 'style-name'
+        );
+        $style_name = $this->document->applyStyle(
+            $style_name, $name, $value, $this
+        );
+        $this->node->setAttributeNS(
+            OpenDocument::NS_TEXT, 'style-name', $style_name
+        );
     }
 }
 ?>
