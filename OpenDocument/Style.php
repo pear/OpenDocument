@@ -1,10 +1,7 @@
 <?php
 /**
-* OpenDocument_Style abstract class
+* PEAR OpenDocument package
 * 
-* OpenDocument_Style absract class - handles element style
-*  all other elements inherit from this one
-*
 * PHP version 5
 *
 * LICENSE: This library is free software; you can redistribute it and/or
@@ -21,13 +18,13 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 * 
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
+* @version  CVS: $Id$
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 
 /**
@@ -36,13 +33,12 @@
 * OpenDocument_Style absract class - handles element style
 *  all other elements inherit from this one
 *
-* @category   File Formats
-* @package    OpenDocument
-* @author     Alexander Pak <irokez@gmail.com>
-* @license    http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
-* @version    0.1.0
-* @link       http://pear.php.net/package/OpenDocument
-* @since      File available since Release 0.1.0
+* @category File_Formats
+* @package  OpenDocument
+* @author   Alexander Pak <irokez@gmail.com>
+* @license  http://www.gnu.org/copyleft/lesser.html  Lesser General Public License 2.1
+* @link     http://pear.php.net/package/OpenDocument
+* @since    File available since Release 0.1.0
 */
 abstract class OpenDocument_Style
 {
@@ -63,19 +59,20 @@ abstract class OpenDocument_Style
     /**
      * Constructor
      *
-     * @param OpenDocument_StyledElement $element
+     * @param OpenDocument_StyledElement $element Element the style is for
      */
     public function __construct(OpenDocument_StyledElement $element)
     {
         $this->element = $element;
-        $this->loadStyle();
+        $this->_loadStyle();
     }
     
     /**
      * Load element style information
      *
+     * @return void
      */
-    private function loadStyle()
+    private function _loadStyle()
     {
         $map = array_flip($this->map);
         $style = $this->element->getStyle(array_keys($map));
@@ -87,11 +84,13 @@ abstract class OpenDocument_Style
     }
     
     /**
-     * Magic method
-     * Set property value
+     * Magic method: Set property value
+     * Can be used to set values for properties defined in $map
      *
-     * @param string $name
-     * @param mixed $value
+     * @param string $name  Name of property
+     * @param mixed  $value Name of value
+     *
+     * @return void
      */
     public function __set($name, $value)
     {
@@ -102,10 +101,10 @@ abstract class OpenDocument_Style
     }
     
     /**
-     * Magic method
-     * Get property value
+     * Magic method: Get property value
      *
-     * @param string $name
+     * @param string $name Name of property to retrieve value for
+     *
      * @return mixed
      */
     public function __get($name)
@@ -120,7 +119,7 @@ abstract class OpenDocument_Style
     /**
      * Export style information
      *
-     * @return array
+     * @return array Key-value array of style names and values
      */
     public function export()
     {
@@ -134,7 +133,9 @@ abstract class OpenDocument_Style
     /**
      * Import style information
      *
-     * @param array $style
+     * @param array $style Key-values: style names and values
+     *
+     * @return void
      */
     public function import($style)
     {
@@ -148,7 +149,9 @@ abstract class OpenDocument_Style
     /**
      * Copy style from another element
      *
-     * @param OpenDocument_Style $styleObject
+     * @param OpenDocument_Style $styleObject Style to import
+     *
+     * @return void
      */
     public function copy(OpenDocument_Style $styleObject)
     {
