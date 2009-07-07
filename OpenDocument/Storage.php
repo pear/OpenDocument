@@ -185,6 +185,19 @@ interface OpenDocument_Storage
      * @see addFile()
      */
     public function removeFile($relpath);
+
+
+
+    /**
+     * Imports data from another storage object
+     *
+     * @param OpenDocument_Storage $storage Storage object
+     *
+     * @return void
+     *
+     * @throws OpenDocument_Exception In case something goes wrong
+     */
+    public function import(OpenDocument_Storage $storage);
 }
 
 ?>

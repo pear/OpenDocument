@@ -17,8 +17,9 @@ require_once 'OpenDocument/Manifest.php';
 require_once 'OpenDocument/Storage.php';
 
 /**
- * Zip storage - the default OpenDocument storage.
- * Creates one zip file containing several XML files.
+ * Single XML file storage driver.
+ * Saves all information in one big XML file.
+ * May not contain any images or other files.
  *
  * @category File_Formats
  * @package  OpenDocument
@@ -26,7 +27,7 @@ require_once 'OpenDocument/Storage.php';
  * @license  http://www.gnu.org/copyleft/lesser.html Lesser General Public License 2.1
  * @link     http://pear.php.net/package/OpenDocument
  */
-class OpenDocument_Storage_Zip implements OpenDocument_Storage
+class OpenDocument_Storage_Single implements OpenDocument_Storage
 {
     /**
      * File name to store file as
@@ -34,13 +35,6 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      * @var string
      */
     protected $file = null;
-
-    /**
-     * Zip document
-     *
-     * @var ZipArchive
-     */
-    protected $zip = null;
 
     /**
      * DOM document containing the content
@@ -94,8 +88,10 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
             $this->checkWritability($file);
         }
 
-        //load file content
-        $this->loadFile(self::getTemplateFile($type));
+        include_once 'OpenDocument/Storage/Zip.php';
+        $zipstore = new OpenDocument_Storage_Zip();
+        $zipstore->create($type);
+        $this->import($zipstore);
 
         //reset file name to our new file to prevent overwriting the template
         $this->file = $file;
@@ -175,47 +171,75 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      *
      * @return void
      *
-     * @throws OpenDocument_Exception When the file is corrupt or
-     *                                does not exist.
+     * @throws OpenDocument_Exception When the file is corrupt
+     *                                or does not exist.
      */
     protected function loadFile($file)
     {
-        $zip = new ZipArchive();
-        if ($zip->open($file) !== true) {
-            throw new OpenDocument_Exception('Cannot open ZIP file: ' . $file);
-        }
-        $this->contentDom  = $this->loadDomFromZip($zip, 'content.xml');
-        $this->metaDom     = $this->loadDomFromZip($zip, 'meta.xml');
-        $this->settingsDom = $this->loadDomFromZip($zip, 'settings.xml');
-        $this->stylesDom   = $this->loadDomFromZip($zip, 'styles.xml');
-        //FIXME: what to do with embedded files (e.g. images)?
-    }
-
-
-
-    /**
-     * Loads the DOM document of the given file name from the zip archive
-     *
-     * @param ZipArchive $zip  Opened ZIP file object
-     * @param string     $file Relative path of file to load from zip
-     *
-     * @return DOMDocument Document of XML file
-     *
-     * @throws OpenDocument_Exception In case the file does not exist in 
-     *                                the zip.
-     */
-    protected function loadDomFromZip(ZipArchive $zip, $file)
-    {
-        $index = $zip->locateName($file);
-        if ($index === false) {
-            throw new OpenDocument_Exception('File not found in zip: ' . $file);
+        $dom = DOMDocument::load($file);
+        if ($dom->documentElement->nodeName != 'office:document') {
+            throw new OpenDocument_Exception(
+                'No OpenDocument file: First XML tag is '
+                . $dom->documentElement->nodeName
+            );
         }
 
-        $dom = new DOMDocument();
-        $dom->loadXML($zip->getFromIndex($index));
+        $domtags = array(
+            'contentDom'  => 'office:document-content',
+            'metaDom'     => 'office:document-meta',
+            'settingsDom' => 'office:document-settings',
+            'stylesDom'   => 'office:document-styles',
+        );
 
-        return $dom;
-    }
+        foreach ($domtags as $var => $roottagname) {
+            $this->$var = new DOMDocument('1.0', 'utf-8');
+            $root       = $this->$var->createElementNS(
+                OpenDocument::NS_OFFICE,
+                $roottagname
+            );
+            $this->$var->appendChild($root);
+        }
+
+        $data = array(
+            'content'  => array(),
+            'meta'     => array(),
+            'settings' => array(),
+            'styles'   => array(),
+        );
+
+        $root = $dom->documentElement;
+        for ($n = 0; $n < $root->childNodes->length; ++$n) {
+            $node = $root->childNodes->item($n);
+            switch ($node->nodeName) {
+            case 'office:meta':
+                $data['meta'][] = $node;
+                break;
+            case 'office:settings':
+                $data['settings'][] = $node;
+                break;
+            case 'office:font-face-decls':
+            case 'office:automatic-styles':
+                $data['content'][] = $node;
+                break;
+            case 'office:styles':
+            case 'office:master-styles':
+                $data['styles'][] = $node;
+                break;
+            case 'office:scripts':
+            case 'office:body':
+                $data['content'][] = $node;
+                break;
+            }
+        }
+
+        foreach ($data as $type => $nodes) {
+            $sdom = $this->{$type . 'Dom'};
+            foreach ($nodes as $node) {
+                $newnode = $sdom->importNode($node, true);
+                $sdom->documentElement->appendChild($newnode);
+            }
+        }
+    }//protected function loadFile(..)
 
 
 
@@ -306,40 +330,34 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
             );
         }
 
-        $zip = new ZipArchive();
-        $res = $zip->open($file, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
-        if ($res !== true) {
-            //FIXME: find a better way to pass on the zip error code
-            throw new OpenDocument_Exception(
-               'Failed to open zip file for saving: ' . $file,
-               $res
-            );
+        $dom = new DOMDocument('1.0', 'utf-8');
+        $root = $dom->createElementNS(
+            OpenDocument::NS_OFFICE,
+            'office:document'
+        );
+        $dom->appendChild($root);
+
+        $doms = array(
+            $this->metaDom,
+            $this->settingsDom,
+            $this->stylesDom,
+            $this->contentDom
+        );
+        foreach ($doms as $part) {
+            $kids = $part->documentElement->childNodes;
+            for ($n = 0; $n < $kids->length; ++$n) {
+                $partnode = $kids->item($n);
+                $newnode = $dom->importNode($partnode, true);
+                $root->appendChild($newnode);
+            }
         }
-        //as soon as ZipArchive exposes compression options,
-        // FIXME this and make it uncompressed
-        $mimetype = $this->getMimeTypeFromContent($this->contentDom);
-        $zip->addFromString('mimetype', $mimetype);
 
-        $manifest = new OpenDocument_Manifest();
-        $manifest->addMimeType($mimetype);
-
-        $manifest->addFile('content.xml', 'text/xml');
-        $zip->addFromString('content.xml', $this->contentDom->saveXML());
-
-        $manifest->addFile('meta.xml', 'text/xml');
-        $zip->addFromString('meta.xml', $this->metaDom->saveXML());
-
-        $manifest->addFile('settings.xml', 'text/xml');
-        $zip->addFromString('settings.xml', $this->settingsDom->saveXML());
-
-        $manifest->addFile('styles.xml', 'text/xml');
-        $zip->addFromString('styles.xml', $this->stylesDom->saveXML());
-
-        //FIXME: add image files added with addFile()
-
-        $zip->addFromString('META-INF/manifest.xml', (string)$manifest);
-
-        $zip->close();
+        //set mime type
+        //FIXME: set mime type
+        $bytes = $dom->save($file);
+        if ($bytes === false) {
+            throw new OpenDocument_Exception('Saving failed');
+        }
     }//public function save(..)
 
 
@@ -435,7 +453,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function addFile($path, $mimetype = null)
     {
-        throw new OpenDocument_Exception('Adding files not supported yet');
+        throw new OpenDocument_Exception('Adding files not supported');
     }
 
 
@@ -452,43 +470,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     public function removeFile($relpath)
     {
-        throw new OpenDocument_Exception('Removing files not supported yet');
-    }
-
-
-
-    /**
-     * Returns the path of a template file for the given file type.
-     *
-     * @param string $type File type ('text', 'spreadsheet')
-     *
-     * @return string Path of the file, null if there is no file for it
-     */
-    public static function getTemplateFile($type)
-    {
-        $file = null;
-        switch ($type) {
-        case 'text':
-            $file = 'default.odt';
-            break;
-        case 'spreadsheet':
-            $file = 'default.ods';
-            break;
-        }
-
-        if (!$file) {
-            return null;
-        }
-
-        if ('@data_dir@' == '@' . 'data_dir@') {
-            $path = dirname(__FILE__) . '/../../data/templates/' . $file;
-        } else {
-            include_once "PEAR/Config.php";
-            $path = PEAR_Config::singleton()->get('data_dir')
-                . '/OpenDocument/templates/' . $file;
-        }
-
-        return $path;
+        throw new OpenDocument_Exception('Removing files not supported');
     }
 
 
@@ -508,9 +490,11 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         $this->setMetaDom($storage->getMetaDom());
         $this->setSettingsDom($storage->getSettingsDom());
         $this->setStylesDom($storage->getStylesDom());
-        //FIXME: files
+        //FIXME: check for files and throw exception if there are some
+        // since we don't suppot them anyway - or ignore them silently
         //FIXME: mime type
-    }
+    }//public function import(..)
+
 }
 
 ?>
