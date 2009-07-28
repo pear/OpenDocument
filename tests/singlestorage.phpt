@@ -1,5 +1,5 @@
 --TEST--
-Test Zip storage functionality
+Test Single XML storage functionality
 --FILE--
 <?php
 require_once 'OpenDocument/Storage/Single.php';

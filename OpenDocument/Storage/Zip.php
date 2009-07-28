@@ -485,7 +485,7 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         } else {
             include_once "PEAR/Config.php";
             $path = PEAR_Config::singleton()->get('data_dir')
-                . '/OpenDocument/templates/' . $file;
+                . '/OpenDocument/data/templates/' . $file;
         }
 
         return $path;
