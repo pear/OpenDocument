@@ -180,14 +180,14 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
      */
     protected function loadFile($file)
     {
-        $zip = new ZipArchive();
-        if ($zip->open($file) !== true) {
+        $this->zip = new ZipArchive();
+        if ($this->zip->open($file) !== true) {
             throw new OpenDocument_Exception('Cannot open ZIP file: ' . $file);
         }
-        $this->contentDom  = $this->loadDomFromZip($zip, 'content.xml');
-        $this->metaDom     = $this->loadDomFromZip($zip, 'meta.xml');
-        $this->settingsDom = $this->loadDomFromZip($zip, 'settings.xml');
-        $this->stylesDom   = $this->loadDomFromZip($zip, 'styles.xml');
+        $this->contentDom  = $this->loadDomFromZip($this->zip, 'content.xml');
+        $this->metaDom     = $this->loadDomFromZip($this->zip, 'meta.xml');
+        $this->settingsDom = $this->loadDomFromZip($this->zip, 'settings.xml');
+        $this->stylesDom   = $this->loadDomFromZip($this->zip, 'styles.xml');
         //FIXME: what to do with embedded files (e.g. images)?
     }
 
@@ -229,7 +229,15 @@ class OpenDocument_Storage_Zip implements OpenDocument_Storage
         //FIXME: implement functionality
         //load from manifest first
         //if null, load from content
-        return 'application/vnd.oasis.opendocument.text';
+        //return 'application/vnd.oasis.opendocument.text';
+        $file = 'mimetype';
+        $index = $this->zip->locateName($file);
+        if ($index === false) {
+            throw new OpenDocument_Exception('File not found in zip: ' . $file);
+        }
+        $mimetype = $this->zip->getFromIndex($index);
+        return $mimetype;
+
     }
 
 
