@@ -1,0 +1,36 @@
+{
+    "authors": [
+        {
+            "email": "cweiske@php.net",
+            "name": "Christian Weiske",
+            "role": "Lead"
+        },
+        {
+            "email": "irokez@gmail.com",
+            "name": "Alexander Pak",
+            "role": "Lead"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "OpenDocument": "./"
+        }
+    },
+    "description": "Read, create and modify OASIS OpenDocument office files.",
+    "include-path": [
+        "./"
+    ],
+    "license": "LGPL",
+    "name": "pear/opendocument",
+    "support": {
+        "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=OpenDocument",
+        "source": "https://github.com/pear/OpenDocument"
+    },
+    "type": "library",
+    "require": {
+        "pear/pear_exception": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
